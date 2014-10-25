@@ -108,7 +108,7 @@ namespace PixivScooper
             for (int page = 1; page <= pages; page++)
             {
                 helper.navigateByPage(userUrlId, IllustType.Illust, page,browser);
-                loadThumbnailsPerPage(pages);
+                loadThumbnailsPerPage(browser);
             }
 
 
@@ -137,7 +137,7 @@ namespace PixivScooper
             form.Close();
             
         }
-        private void loadThumbnailsPerPage(int pages)
+        private void loadThumbnailsPerPage(WebBrowser browser)
         {
 
             HtmlDocument doc = browser.Document;
@@ -169,18 +169,8 @@ namespace PixivScooper
                 processedImage++;
             }
             
-             
-            //item.ImageIndex = processedImage;    
-            //imageList.Items.Add(processedImage.ToString(), processedImage);
-           
         }
         private Image loadImage(string imageUrl)
-        {
-            MemoryStream stream = new MemoryStream(loadByteData(imageUrl));
-            Image returnImage = Image.FromStream(stream);
-            return returnImage;
-        }
-        private byte[] loadByteData(string imageUrl)
         {
             try
             {
@@ -188,15 +178,8 @@ namespace PixivScooper
                 requester.Referer = Program.referer;
                
                 WebResponse response = requester.GetResponse();
-                using (Stream responseStream = response.GetResponseStream())
-                {
-                    using (MemoryStream memory = new MemoryStream())
-                    {
-                        responseStream.CopyTo(memory);
-                        return memory.ToArray();
-                    }
-                }
-                
+                Image image = Image.FromStream(response.GetResponseStream());
+                return image;
                 
             }
             catch (WebException e)
