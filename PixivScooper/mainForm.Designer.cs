@@ -49,7 +49,6 @@
             this.urlTextBox.Name = "urlTextBox";
             this.urlTextBox.Size = new System.Drawing.Size(440, 21);
             this.urlTextBox.TabIndex = 0;
-            this.urlTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // label1
             // 
@@ -59,7 +58,6 @@
             this.label1.Size = new System.Drawing.Size(47, 12);
             this.label1.TabIndex = 1;
             this.label1.Text = "Pixiv ID";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // urlButton
             // 

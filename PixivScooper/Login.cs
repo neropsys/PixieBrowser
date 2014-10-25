@@ -28,7 +28,7 @@ namespace PixivScooper
             // if any one of the input is null, do not create file and return;
             if (id == "" || password == "") return;
             helper = new HtmlHelper();
-            if (!helper.loginSuccess(id, password, browser))
+            if (!helper.loginSuccess(id, password))
             {
                 MessageBox.Show("failed to login. check id and password");
                 return;

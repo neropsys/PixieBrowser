@@ -12,6 +12,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Drawing.Imaging;
+using System.Threading;
 namespace PixivScooper
 {
     public partial class mainForm : Form
@@ -66,17 +67,9 @@ namespace PixivScooper
             helper = new HtmlHelper();
             browser = new WebBrowser();
             browser.ScriptErrorsSuppressed = true;
-            helper.loginSuccess(id, password, browser);
+            helper.loginSuccess(id, password);
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        } 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
         private void clearAll()
         {
             squareImageView.Clear();
@@ -92,21 +85,22 @@ namespace PixivScooper
             clearAll();
             processedImage = 0;
             string userUrlId = urlTextBox.Text.ToString();
-            helper.searchById(userUrlId, browser);
-            if (browser.DocumentText.Contains("errorArea"))
+           
+            if (!helper.searchById(userUrlId))
             {
-                MessageBox.Show("ID does not exist");
+                MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
                 return;
             }
 
-            int pages = helper.maxPage(browser, userUrlId, IllustType.All);
+            int pages = helper.maxPage(userUrlId, IllustType.All);
             int approxImage = 20 * pages;
 
             form = new Loading(approxImage, "loading thumbnails..");
             form.Show();
-            
+
             for (int page = 1; page <= pages; page++)
-            {
+            { 
+                
                 helper.navigateByPage(userUrlId, IllustType.Illust, page,browser);
                 loadThumbnailsPerPage(browser);
             }
@@ -137,6 +131,7 @@ namespace PixivScooper
             form.Close();
             
         }
+        
         private void loadThumbnailsPerPage(WebBrowser browser)
         {
 

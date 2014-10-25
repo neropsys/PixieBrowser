@@ -16,42 +16,46 @@ namespace PixivScooper
         {
 
         }
-        public bool loginSuccess(string id, string password, WebBrowser browser)
+        bool isloggedIn = false;
+        public bool loginSuccess(string id, string password)
         {
-
-            navigate("www.pixiv.net/login.php?", browser);
+            WebBrowser browser = new WebBrowser();
+            browser.ScriptErrorsSuppressed = true;
+            browser.Navigate("www.pixiv.net/login.php?");
             if (browser.DocumentText.Contains("not-logged-in"))
             {
+                browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler((object sender, WebBrowserDocumentCompletedEventArgs e) =>
+                {
+                    if (browser.DocumentText.Contains("not-logged-in"))
+                        isloggedIn = false;
+                });
                 browser.Document.GetElementById("pixiv_id").InnerText = id;
                 browser.Document.GetElementById("pass").InnerText = password;
                 browser.Document.GetElementById("login_submit").InvokeMember("click");
 
-                wait(browser);
-                if (browser.DocumentText.Contains("not-logged-in")) return false;
+
             }
-            return true;
-        }
-        private void navigate(string url, WebBrowser browser)
-        {
-            browser.Navigate(url);
-            wait(browser);
+            else 
+                isloggedIn = true;
+            return isloggedIn;
         }
         public void navigateByPage(string id, mainForm.IllustType illustType, int pagenum, WebBrowser browser)
         {
             string illustPage = illustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
-            navigate(illustPage, browser);
+            browser.Navigate(illustPage);
+            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+          
 
         }
-        public void searchById(string profileId, WebBrowser browser)//Only looks for Illust, not manga, ugoira, novel
+        public bool searchById(string profileId)//Only looks for Illust, not manga, ugoira, novel
         {
+            WebBrowser browser = new WebBrowser();
             string url = "http://www.pixiv.net/member_illust.php?type=illust&id=" + profileId;
             //subject to change if user wants to download other than images
-            navigate(url, browser);
-        }
-        private void wait(WebBrowser browser)
-        {
-            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+            browser.Navigate(url);
+            if (browser.DocumentText.Contains("errorArea")) return false;
+            else return true;
         }
         private string illustFilter(string id, mainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
         {
@@ -82,8 +86,13 @@ namespace PixivScooper
             return urlTemplate;
 
         }
-        public int maxPage(WebBrowser browser, string id, mainForm.IllustType illustType)
+        public int maxPage(string id, mainForm.IllustType illustType)
         {
+            string url = illustFilter(id, mainForm.IllustType.Illust);
+
+            WebBrowser browser = new WebBrowser();
+            browser.Navigate(url);
+            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
             int pages = 1;
             bool maxPageReached = false;
             string temp;
@@ -108,7 +117,8 @@ namespace PixivScooper
                 {
                     string nextUrl = illustFilter(id,illustType);
                     nextUrl += "&type=illust&p=" + pages.ToString();
-                    navigate(nextUrl, browser);
+                    browser.Navigate(nextUrl);
+                    while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
                     continue;
                 }
                 else maxPageReached = true;
