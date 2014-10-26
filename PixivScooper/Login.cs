@@ -36,6 +36,8 @@ namespace PixivScooper
             saveCredential();
             MessageBox.Show("login successful!");
             Program.isLoggedIn = true;
+            Program.id = this.id;
+            Program.password = this.password;
             Close();
         }
         private void saveCredential()

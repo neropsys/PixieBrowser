@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Net;
 using System.Drawing.Imaging;
 using System.Threading;
+using System.Diagnostics;
+using HtmlAgilityPack;
 namespace PixivScooper
 {
     public partial class mainForm : Form
@@ -34,7 +36,9 @@ namespace PixivScooper
         HtmlHelper helper;
         WebBrowser browser;
         Loading form;
+        public static CookieContainer cookie;
         int processedImage;
+        object lockobject = new object();
         public mainForm()
         {
             InitializeComponent();
@@ -63,11 +67,13 @@ namespace PixivScooper
             StreamReader reader = new StreamReader("credential.dat");
             string id = reader.ReadLine();
             string password = reader.ReadLine();
-            
+            Program.id = id;
+            Program.password = password;
             helper = new HtmlHelper();
             browser = new WebBrowser();
             browser.ScriptErrorsSuppressed = true;
             helper.loginSuccess(id, password);
+            cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
         }
 
         private void clearAll()
@@ -97,16 +103,59 @@ namespace PixivScooper
 
             form = new Loading(approxImage, "loading thumbnails..");
             form.Show();
-
+            System.Timers.Timer time = new System.Timers.Timer();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             for (int page = 1; page <= pages; page++)
-            { 
-                
-                helper.navigateByPage(userUrlId, IllustType.Illust, page,browser);
-                loadThumbnailsPerPage(browser);
+            {
+                HtmlAgilityPack.HtmlDocument document = HtmlHelper.htmlOnPage(userUrlId, IllustType.Illust, page, cookie);
+
+                loadThumbnailsPerPage(document);
             }
+           
+            /*
+            Task task = Task.Factory.StartNew(()=>{
+                           int halfPage = pages / 2;
+                           for (int page = 1; page <= halfPage; page++)
+                           {
+                               string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p=" + page.ToString();
+                               browser.Navigate(filter);
+                               while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+                               Application.DoEvents();
+                           }
+                       }, TaskCreationOptions.LongRunning);
+            Task task2 = Task.Factory.StartNew(() =>
+            {
+                int nextpage = pages / 2;
+                nextpage++;
+                for (int page = nextpage; page <= pages; page++)
+                {
+                    string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p=" + page.ToString();
+                    browser.Navigate(filter);
+                    while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+                    Application.DoEvents();
+                }
+            }, TaskCreationOptions.LongRunning);
+            Task.WaitAll(task, task2);*/
+           /*
+            * string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p="+page.ToString();
+                       browser.Navigate(filter);
+                       while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+                       Application.DoEvents();
+            */
+            /*
+             Task.Factory.StartNew(()=>{
+                           int nextpage = pages /2;
+                           nextpage++;
+                           for(int page = nextpage; page<=pages; page++){
+                                string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p="+page.ToString();
+                                browser.Navigate(filter);
+                                while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+                                Application.DoEvents();
+                           }
+             */
 
-
-            for (int counter = 0; counter < squareImages.Images.Count; counter++)
+           for (int counter = 0; counter < squareImages.Images.Count; counter++)
             {
                 ListViewItem item = new ListViewItem();
                 item.ImageIndex = counter;
@@ -126,16 +175,16 @@ namespace PixivScooper
                 item.ImageIndex = counter;
                 horizontalImageView.Items.Add(item);
             }
-
-            horizontalImageView.LargeImageList = horizontalImages;
             form.Close();
+            horizontalImageView.LargeImageList = horizontalImages;
+            watch.Stop();
+            Debug.WriteLine("Elapsed={0}", watch.Elapsed);
             
         }
-        
         private void loadThumbnailsPerPage(WebBrowser browser)
         {
 
-            HtmlDocument doc = browser.Document;
+            System.Windows.Forms.HtmlDocument doc = browser.Document;
 
             HtmlElementCollection col = doc.GetElementsByTagName("div");
 
@@ -148,22 +197,51 @@ namespace PixivScooper
                 try
                 {
                     Image loadedImage = loadImage(thumbnailURL);
-                    if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
-                        horizontalImages.Images.Add(loadedImage);
-                    else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
-                        verticalImages.Images.Add(loadedImage);
-                    else
-                        squareImages.Images.Add(loadImage(thumbnailURL));
+                    lock (lockobject)
+                    {
+                        if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
+                            horizontalImages.Images.Add(loadedImage);
+                        else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
+                            verticalImages.Images.Add(loadedImage);
+                        else
+                            squareImages.Images.Add(loadImage(thumbnailURL));
+                    }
                 }
                 catch (Exception)
                 {
                     System.Console.Write("image null");
                 }
-
-                form.scrollProgress(processedImage);
-                processedImage++;
+                lock (lockobject)
+                {
+                    //form.scrollProgress(processedImage);
+                    //processedImage++;
+                }
             }
             
+        }
+        private void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
+        {
+            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
+            {
+                string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
+                try
+                {
+                    Image loadedImage = loadImage(thumbnailUrl);
+                    if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
+                        horizontalImages.Images.Add(loadedImage);
+                    else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
+                        verticalImages.Images.Add(loadedImage);
+                    else
+                        squareImages.Images.Add(loadedImage);
+                    processedImage++;
+                    form.scrollProgress(processedImage);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("something went wrong while downloading images :(");
+                }
+            }
+
         }
         private Image loadImage(string imageUrl)
         {
