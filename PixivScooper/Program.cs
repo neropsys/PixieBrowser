@@ -30,7 +30,7 @@ namespace PixivScooper
             else isLoggedIn = true;
 
             if(isLoggedIn)
-                Application.Run(new mainForm());
+                Application.Run(new MainForm());
            
         }
         

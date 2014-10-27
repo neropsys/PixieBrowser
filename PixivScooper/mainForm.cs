@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 namespace PixivScooper
 {
-    public partial class mainForm : Form
+    public partial class MainForm : Form
     {
         public enum IllustType
         {
@@ -23,23 +23,21 @@ namespace PixivScooper
         ListView horizontalImageView;
         ListView verticalImageView;
 
-        ImageList squareImages;
-        ImageList horizontalImages;
-        ImageList verticalImages;
+        static ImageList squareImages;
+        static ImageList horizontalImages;
+        static ImageList verticalImages;
 
         object locker = new object();
         public static CookieContainer cookie;
-
-        private delegate void CallbackDelegate();
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
-        CallbackDelegate updateProgress;
+ 
 
         HtmlHelper helper;
         WebBrowser browser;
-        Loading loadingForm;
+        static Loading loadingForm;
 
-        public mainForm()
+        public MainForm()
         {
             InitializeComponent();
 
@@ -109,7 +107,7 @@ namespace PixivScooper
             Parallel.For(1, pages, (i) =>
             {
                 HtmlAgilityPack.HtmlDocument document = HtmlHelper.HtmlOnPage(userUrlId, IllustType.Illust, i, cookie);
-                loadThumbnailsPerPage(document);
+                ImageHelper.loadThumbnailsPerPage(document);
 
             });
             watch.Stop();
@@ -118,13 +116,13 @@ namespace PixivScooper
             watch.Start();
             Task[] loadImageTask= new Task[] {
                 Task.Factory.StartNew(()=>{
-                    loadImageList(squareImages, squareImageView);
+                    ImageHelper.loadImageList(squareImages, squareImageView);
                 }),
                 Task.Factory.StartNew(()=>{
-                    loadImageList(horizontalImages, horizontalImageView);
+                    ImageHelper.loadImageList(horizontalImages, horizontalImageView);
                 }),
                 Task.Factory.StartNew(()=>{
-                    loadImageList(verticalImages, verticalImageView);
+                    ImageHelper.loadImageList(verticalImages, verticalImageView);
                 })};
             
             Task.WaitAll(loadImageTask);
@@ -133,7 +131,12 @@ namespace PixivScooper
             loadingForm.Close();
             
         }
-        private void loadImageList(ImageList imageList, ListView listview)
+        public static ImageList getSquareImageList() { return squareImages; }
+        public static ImageList getHorizontalImageList() { return horizontalImages; }
+        public static ImageList getVerticalImageList() { return verticalImages; }
+        public static Loading getLoadingForm() { return loadingForm; }
+        /*
+        public static void loadImageList(ImageList imageList, ListView listview)
         {
             for (int counter = 0; counter < imageList.Images.Count; counter++)
             {
@@ -150,7 +153,7 @@ namespace PixivScooper
             else
                 listview.LargeImageList = imageList;
         }
-        private void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
+        public static void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
         {
             
             foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
@@ -184,7 +187,7 @@ namespace PixivScooper
             }
 
         }
-        private Image loadImage(string imageUrl)
+        public Image loadImage(string imageUrl)
         {
             try
             {
@@ -211,7 +214,7 @@ namespace PixivScooper
             }
             return null;
             
-        }
+        }*/
         private ListView setupViewProperty(string viewName)
         {
             ListView view = new ListView();

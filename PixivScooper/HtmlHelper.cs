@@ -41,7 +41,7 @@ namespace PixivScooper
             
             return isloggedIn;
         }
-        public void navigateByPage(string id, mainForm.IllustType illustType, int pagenum, WebBrowser browser)
+        public void navigateByPage(string id, MainForm.IllustType illustType, int pagenum, WebBrowser browser)
         {
             string illustPage = IllustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
@@ -51,7 +51,7 @@ namespace PixivScooper
           
 
         }
-        private static string HtmlPageNum(string id, mainForm.IllustType illustType, int pagenum)
+        private static string HtmlPageNum(string id, MainForm.IllustType illustType, int pagenum)
         {
             string illustPage = IllustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
@@ -67,25 +67,25 @@ namespace PixivScooper
             if (browser.DocumentText.Contains("errorArea")) return false;
             else return true;
         }
-        private static string IllustFilter(string id, mainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
+        private static string IllustFilter(string id, MainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
         {
             string urlTemplate = "http://www.pixiv.net/member_illust.php?";
 
             switch (illustType)
             {
-                case mainForm.IllustType.All:
+                case MainForm.IllustType.All:
                     urlTemplate += "id=" + id;
                     break;
-                case mainForm.IllustType.Illust:
+                case MainForm.IllustType.Illust:
                     urlTemplate += "type=illust&id=" + id;
                     break;
-                case mainForm.IllustType.Manga:
+                case MainForm.IllustType.Manga:
                     urlTemplate += "type=manga&id=" + id;
                     break;
-                case mainForm.IllustType.Ugoira:
+                case MainForm.IllustType.Ugoira:
                     urlTemplate += "type=ugoira&id=" + id;
                     break;
-                case mainForm.IllustType.Novel:
+                case MainForm.IllustType.Novel:
                     urlTemplate = "http://www.pixiv.net/novel/member.php?id=" + id;
                     break;
                 default: 
@@ -96,9 +96,9 @@ namespace PixivScooper
             return urlTemplate;
 
         }
-        public int maxPage(string id, mainForm.IllustType illustType)
+        public int maxPage(string id, MainForm.IllustType illustType)
         {
-            string url = IllustFilter(id, mainForm.IllustType.Illust);
+            string url = IllustFilter(id, MainForm.IllustType.Illust);
 
             WebBrowser browser = new WebBrowser();
             browser.Navigate(url);
@@ -176,7 +176,7 @@ namespace PixivScooper
             }
             return cookies;
         }  
-        public static HtmlAgilityPack.HtmlDocument HtmlOnPage(string userId, mainForm.IllustType illustType, int page, CookieContainer cookie){
+        public static HtmlAgilityPack.HtmlDocument HtmlOnPage(string userId, MainForm.IllustType illustType, int page, CookieContainer cookie){
            
             string url = HtmlPageNum(userId, illustType, page);
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
