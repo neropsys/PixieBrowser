@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using HtmlAgilityPack;
+using System;
+using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Web;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Net;
-using System.Drawing.Imaging;
-using System.Threading;
-using System.Diagnostics;
-using HtmlAgilityPack;
 namespace PixivScooper
 {
     public partial class mainForm : Form
@@ -30,18 +22,23 @@ namespace PixivScooper
         ListView squareImageView;
         ListView horizontalImageView;
         ListView verticalImageView;
+
         ImageList squareImages;
         ImageList horizontalImages;
         ImageList verticalImages;
-        HtmlHelper helper;
+
         object locker = new object();
-        WebBrowser browser;
-        Loading loadingForm;
         public static CookieContainer cookie;
-        object lockobject = new object();
+
         private delegate void CallbackDelegate();
         private delegate void ListViewDelegate(ImageList list, ListView listview);
+
         CallbackDelegate updateProgress;
+
+        HtmlHelper helper;
+        WebBrowser browser;
+        Loading loadingForm;
+
         public mainForm()
         {
             InitializeComponent();
