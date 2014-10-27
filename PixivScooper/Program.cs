@@ -22,6 +22,7 @@ namespace PixivScooper
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new ImagePreview());
             if (!System.IO.File.Exists("credential.dat"))
             {
                 Application.Run(new Login());

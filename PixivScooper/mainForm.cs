@@ -31,8 +31,6 @@ namespace PixivScooper
         public static CookieContainer cookie;
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
- 
-
         HtmlHelper helper;
         WebBrowser browser;
         static Loading loadingForm;
@@ -57,6 +55,10 @@ namespace PixivScooper
             horizontalImageView = setupViewProperty("wideImageView");
             verticalImageView = setupViewProperty("verticalImageView");
 
+            squareImageView.MouseDoubleClick += squareImageView_MouseDoubleClick;
+            horizontalImageView.MouseDoubleClick += horizontalImageView_MouseDoubleClick;
+            verticalImageView.MouseDoubleClick += verticalImageView_MouseDoubleClick;
+
             tabPage1.Controls.Add(squareImageView);
             tabPage2.Controls.Add(horizontalImageView);
             tabPage3.Controls.Add(verticalImageView);
@@ -73,6 +75,27 @@ namespace PixivScooper
             helper.loginSuccess(id, password);
             cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
         }
+
+        private void verticalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            ListViewItem selectedImage = verticalImageView.GetItemAt(e.X, e.Y);
+            if (selectedImage != null)
+            {
+                ImagePreview previewImage = new ImagePreview(selectedImage.Tag);
+            }
+        }
+
+        void horizontalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void squareImageView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        
 
         private void clearAll()
         {
@@ -131,90 +154,6 @@ namespace PixivScooper
             loadingForm.Close();
             
         }
-        public static ImageList getSquareImageList() { return squareImages; }
-        public static ImageList getHorizontalImageList() { return horizontalImages; }
-        public static ImageList getVerticalImageList() { return verticalImages; }
-        public static Loading getLoadingForm() { return loadingForm; }
-        /*
-        public static void loadImageList(ImageList imageList, ListView listview)
-        {
-            for (int counter = 0; counter < imageList.Images.Count; counter++)
-            {
-                ListViewItem item = new ListViewItem();
-                item.ImageIndex = counter;
-                if (listview.InvokeRequired)
-                   listview.BeginInvoke(new MethodInvoker(()=>listview.Items.Add(item)));
-                else
-                   listview.Items.Add(item);
-
-            }
-            if (listview.InvokeRequired)
-                listview.BeginInvoke(new MethodInvoker(()=>listview.LargeImageList = imageList));
-            else
-                listview.LargeImageList = imageList;
-        }
-        public static void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
-        {
-            
-            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
-            {
-                string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
-                try
-                {
-                    
-                    Image loadedImage = loadImage(thumbnailUrl);
-                    lock (locker)
-                    {
-                        if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
-                            horizontalImages.Images.Add(loadedImage);
-                        else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
-                            verticalImages.Images.Add(loadedImage);
-                        else
-                            squareImages.Images.Add(loadedImage);
-                        if (loadingForm.InvokeRequired)
-                            updateProgress = new CallbackDelegate(() => loadingForm.processValue());
-                        else
-                            loadingForm.processValue();
-                       
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.Message);
-                    MessageBox.Show("something went wrong while downloading images :( Contact dev for this");
-                    Application.Exit();
-                }
-            }
-
-        }
-        public Image loadImage(string imageUrl)
-        {
-            try
-            {
-                HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(imageUrl);
-                requester.Referer = Program.referer;
-               
-                WebResponse response = requester.GetResponse();
-                Image image = Image.FromStream(response.GetResponseStream());
-                return image;
-                
-            }
-            catch (WebException e)
-            {
-                using (WebResponse response = e.Response)
-                {
-                    HttpWebResponse httpResponse = (HttpWebResponse)response;
-                    Console.WriteLine("error code {0}", httpResponse.StatusCode);
-                    using (Stream data = response.GetResponseStream())
-                    {
-                        string text = new StreamReader(data).ReadToEnd();
-                        Console.WriteLine(text);
-                    }
-                }
-            }
-            return null;
-            
-        }*/
         private ListView setupViewProperty(string viewName)
         {
             ListView view = new ListView();
@@ -225,7 +164,6 @@ namespace PixivScooper
             view.TabIndex = 7;
             view.View = View.LargeIcon;
             view.Dock = DockStyle.Fill;
-            
             view.UseCompatibleStateImageBehavior = false;
             return view;
         }
@@ -242,6 +180,9 @@ namespace PixivScooper
         {
 
         }
-
+        public static ImageList getSquareImageList() { return squareImages; }
+        public static ImageList getHorizontalImageList() { return horizontalImages; }
+        public static ImageList getVerticalImageList() { return verticalImages; }
+        public static Loading getLoadingForm() { return loadingForm; }
     }
 }

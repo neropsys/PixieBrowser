@@ -149,7 +149,7 @@
             this.tabPage3.Text = "Vertical Image";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // mainForm
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -162,7 +162,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.urlTextBox);
             this.MinimumSize = new System.Drawing.Size(324, 380);
-            this.Name = "mainForm";
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.imageTabControl.ResumeLayout(false);

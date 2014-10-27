@@ -12,6 +12,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 namespace PixivScooper
 {
+    public struct ImageTag
+    {
+        public string imageLink;
+        public bool isSpecialType;
+    }
     class ImageHelper
     {
         private static object locker = new object();
@@ -77,9 +82,31 @@ namespace PixivScooper
             {
                 HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(imageUrl);
                 requester.Referer = Program.referer;
-
                 WebResponse response = requester.GetResponse();
                 Image image = Image.FromStream(response.GetResponseStream());
+
+
+                string[] delimiters = new string[] {"/", "_"};
+                string[] parsedUrl = imageUrl.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                ImageTag tag;
+                Debug.WriteLine(imageUrl);
+                tag.imageLink = imageUrl;
+                tag.isSpecialType = false;
+                if (parsedUrl[2].Equals("c"))
+                    tag.isSpecialType = true;
+                /*tag.imageId = parsedUrl[10];
+                tag.isSpecialType = false;
+
+                
+                if (parsedUrl[2].Equals("c"))
+                {
+                    tag.imageId = parsedUrl[12];
+                                                //URL for group of Illustrations. Must be processed seperately in the future
+                    tag.isSpecialType = true;
+
+                }
+                image.Tag = tag;*/
+                               
                 return image;
 
             }
