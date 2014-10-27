@@ -39,8 +39,9 @@ namespace PixivScooper
         Loading loadingForm;
         public static CookieContainer cookie;
         object lockobject = new object();
-        private delegate void UpdateProgress();
-        UpdateProgress updateProgress;
+        private delegate void CallbackDelegate();
+        private delegate void ListViewDelegate(ImageList list, ListView listview);
+        CallbackDelegate updateProgress;
         public mainForm()
         {
             InitializeComponent();
@@ -114,35 +115,44 @@ namespace PixivScooper
                 loadThumbnailsPerPage(document);
 
             });
-            
-            for (int counter = 0; counter < squareImages.Images.Count; counter++)
-            {
-                ListViewItem item = new ListViewItem();
-                item.ImageIndex = counter;
-                squareImageView.Items.Add(item);
-            }
-            squareImageView.LargeImageList = squareImages;
-            for (int counter =0; counter < verticalImages.Images.Count; counter++)
-            {
-                ListViewItem item = new ListViewItem();
-                item.ImageIndex = counter;
-                verticalImageView.Items.Add(item);
-            }
-            verticalImageView.LargeImageList = verticalImages;
-            for (int counter = 0; counter < horizontalImages.Images.Count; counter++)
-            {
-                ListViewItem item = new ListViewItem();
-                item.ImageIndex = counter;
-                horizontalImageView.Items.Add(item);
-            }
-            loadingForm.Close();
-            horizontalImageView.LargeImageList = horizontalImages;
             watch.Stop();
-            Debug.WriteLine("Elapsed={0}", watch.Elapsed);
+            Debug.WriteLine("Loading time Elapsed={0}", watch.Elapsed);
+            watch.Reset();
+            watch.Start();
+            Task[] loadImageTask= new Task[] {
+                Task.Factory.StartNew(()=>{
+                    loadImageList(squareImages, squareImageView);
+                }),
+                Task.Factory.StartNew(()=>{
+                    loadImageList(horizontalImages, horizontalImageView);
+                }),
+                Task.Factory.StartNew(()=>{
+                    loadImageList(verticalImages, verticalImageView);
+                })};
+            
+            Task.WaitAll(loadImageTask);
+            watch.Stop();
+            Debug.WriteLine("loading image to view Elapsed={0}", watch.Elapsed);
+            loadingForm.Close();
             
         }
+        private void loadImageList(ImageList imageList, ListView listview)
+        {
+            for (int counter = 0; counter < imageList.Images.Count; counter++)
+            {
+                ListViewItem item = new ListViewItem();
+                item.ImageIndex = counter;
+                if (listview.InvokeRequired)
+                   listview.BeginInvoke(new MethodInvoker(()=>listview.Items.Add(item)));
+                else
+                   listview.Items.Add(item);
 
-       
+            }
+            if (listview.InvokeRequired)
+                listview.BeginInvoke(new MethodInvoker(()=>listview.LargeImageList = imageList));
+            else
+                listview.LargeImageList = imageList;
+        }
         private void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
         {
             
@@ -162,7 +172,7 @@ namespace PixivScooper
                         else
                             squareImages.Images.Add(loadedImage);
                         if (loadingForm.InvokeRequired)
-                            updateProgress = new UpdateProgress(() => loadingForm.processValue());
+                            updateProgress = new CallbackDelegate(() => loadingForm.processValue());
                         else
                             loadingForm.processValue();
                        
