@@ -16,6 +16,7 @@ namespace PixivScooper
 {
     class HtmlHelper
     {
+        private const Int32 InternetCookieHttponly = 0x2000;
         public HtmlHelper()
         {
 
@@ -50,7 +51,7 @@ namespace PixivScooper
         }
         public void navigateByPage(string id, mainForm.IllustType illustType, int pagenum, WebBrowser browser)
         {
-            string illustPage = illustFilter(id, illustType);
+            string illustPage = IllustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
             browser.Navigate(illustPage);
             while (browser.ReadyState != WebBrowserReadyState.Complete)
@@ -58,9 +59,9 @@ namespace PixivScooper
           
 
         }
-        private static string htmlPagenum(string id, mainForm.IllustType illustType, int pagenum)
+        private static string HtmlPageNum(string id, mainForm.IllustType illustType, int pagenum)
         {
-            string illustPage = illustFilter(id, illustType);
+            string illustPage = IllustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
             return illustPage;
         }
@@ -74,7 +75,7 @@ namespace PixivScooper
             if (browser.DocumentText.Contains("errorArea")) return false;
             else return true;
         }
-        private static string illustFilter(string id, mainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
+        private static string IllustFilter(string id, mainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
         {
             string urlTemplate = "http://www.pixiv.net/member_illust.php?";
 
@@ -105,7 +106,7 @@ namespace PixivScooper
         }
         public int maxPage(string id, mainForm.IllustType illustType)
         {
-            string url = illustFilter(id, mainForm.IllustType.Illust);
+            string url = IllustFilter(id, mainForm.IllustType.Illust);
 
             WebBrowser browser = new WebBrowser();
             browser.Navigate(url);
@@ -117,7 +118,7 @@ namespace PixivScooper
             loadingform.Show();
             while (!maxPageReached)
             {
-                loadingform.scrollProgress(pages);
+                loadingform.processValue();
                 temp = "p=" + (pages + 1).ToString();//"href=\""+ "?id=" + id + "&amp;type=illust"+ "&amp;p=" + "2"+"\"";//?id=170890&type=illust&p=13, ?id=170890&amp;type=illust&amp;p=3
                 if (!browser.DocumentText.Contains("pager-container") ||
                     !browser.DocumentText.Contains("_thumbnail") ||
@@ -132,7 +133,7 @@ namespace PixivScooper
                 }
                 if (browser.DocumentText.Contains("class=\"next\""))
                 {
-                    string nextUrl = illustFilter(id,illustType);
+                    string nextUrl = IllustFilter(id,illustType);
                     nextUrl += "&type=illust&p=" + pages.ToString();
                     browser.Navigate(nextUrl);
                     while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
@@ -153,7 +154,6 @@ namespace PixivScooper
             Int32 dwFlags,
             IntPtr lpReserved);
 
-        private const Int32 InternetCookieHttponly = 0x2000;
 
         
         public static CookieContainer GetUriCookieContainer(Uri uri)
@@ -184,9 +184,9 @@ namespace PixivScooper
             }
             return cookies;
         }  
-        public static  HtmlAgilityPack.HtmlDocument htmlOnPage(string userId, mainForm.IllustType illustType, int page, CookieContainer cookie){
+        public static HtmlAgilityPack.HtmlDocument HtmlOnPage(string userId, mainForm.IllustType illustType, int page, CookieContainer cookie){
            
-            string url = htmlPagenum(userId, illustType, page);
+            string url = HtmlPageNum(userId, illustType, page);
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
             req.Accept = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
             req.ContentType = "applicaton/x-www-form-urlencoded";

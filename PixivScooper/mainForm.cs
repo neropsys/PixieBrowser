@@ -34,11 +34,13 @@ namespace PixivScooper
         ImageList horizontalImages;
         ImageList verticalImages;
         HtmlHelper helper;
+        object locker = new object();
         WebBrowser browser;
-        Loading form;
+        Loading loadingForm;
         public static CookieContainer cookie;
-        int processedImage;
         object lockobject = new object();
+        private delegate void UpdateProgress();
+        UpdateProgress updateProgress;
         public mainForm()
         {
             InitializeComponent();
@@ -89,7 +91,6 @@ namespace PixivScooper
         private void urlButton_Click(object sender, EventArgs e)
         {
             clearAll();
-            processedImage = 0;
             string userUrlId = urlTextBox.Text.ToString();
            
             if (!helper.searchById(userUrlId))
@@ -101,61 +102,20 @@ namespace PixivScooper
             int pages = helper.maxPage(userUrlId, IllustType.All);
             int approxImage = 20 * pages;
 
-            form = new Loading(approxImage, "loading thumbnails..");
-            form.Show();
+            loadingForm = new Loading(approxImage, "loading thumbnails..");
+            loadingForm.Show();
             System.Timers.Timer time = new System.Timers.Timer();
             Stopwatch watch = new Stopwatch();
-            watch.Start();
-            for (int page = 1; page <= pages; page++)
-            {
-                HtmlAgilityPack.HtmlDocument document = HtmlHelper.htmlOnPage(userUrlId, IllustType.Illust, page, cookie);
+            watch.Start(); //for debug
 
+            Parallel.For(1, pages, (i) =>
+            {
+                HtmlAgilityPack.HtmlDocument document = HtmlHelper.HtmlOnPage(userUrlId, IllustType.Illust, i, cookie);
                 loadThumbnailsPerPage(document);
-            }
-           
-            /*
-            Task task = Task.Factory.StartNew(()=>{
-                           int halfPage = pages / 2;
-                           for (int page = 1; page <= halfPage; page++)
-                           {
-                               string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p=" + page.ToString();
-                               browser.Navigate(filter);
-                               while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-                               Application.DoEvents();
-                           }
-                       }, TaskCreationOptions.LongRunning);
-            Task task2 = Task.Factory.StartNew(() =>
-            {
-                int nextpage = pages / 2;
-                nextpage++;
-                for (int page = nextpage; page <= pages; page++)
-                {
-                    string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p=" + page.ToString();
-                    browser.Navigate(filter);
-                    while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-                    Application.DoEvents();
-                }
-            }, TaskCreationOptions.LongRunning);
-            Task.WaitAll(task, task2);*/
-           /*
-            * string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p="+page.ToString();
-                       browser.Navigate(filter);
-                       while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-                       Application.DoEvents();
-            */
-            /*
-             Task.Factory.StartNew(()=>{
-                           int nextpage = pages /2;
-                           nextpage++;
-                           for(int page = nextpage; page<=pages; page++){
-                                string filter = HtmlHelper.illustFilter(userUrlId, IllustType.Illust) + "&p="+page.ToString();
-                                browser.Navigate(filter);
-                                while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-                                Application.DoEvents();
-                           }
-             */
 
-           for (int counter = 0; counter < squareImages.Images.Count; counter++)
+            });
+            
+            for (int counter = 0; counter < squareImages.Images.Count; counter++)
             {
                 ListViewItem item = new ListViewItem();
                 item.ImageIndex = counter;
@@ -175,70 +135,44 @@ namespace PixivScooper
                 item.ImageIndex = counter;
                 horizontalImageView.Items.Add(item);
             }
-            form.Close();
+            loadingForm.Close();
             horizontalImageView.LargeImageList = horizontalImages;
             watch.Stop();
             Debug.WriteLine("Elapsed={0}", watch.Elapsed);
             
         }
-        private void loadThumbnailsPerPage(WebBrowser browser)
+
+       
+        private void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
         {
-
-            System.Windows.Forms.HtmlDocument doc = browser.Document;
-
-            HtmlElementCollection col = doc.GetElementsByTagName("div");
-
-            foreach (HtmlElement element in col)//iterated per image in the current page
+            
+            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
             {
-                string className = element.GetAttribute("className");
-                if (String.IsNullOrEmpty(className) || !className.Equals("_layout-thumbnail"))
-                    continue;
-                string thumbnailURL = Regex.Match(element.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
+                string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
                 try
                 {
-                    Image loadedImage = loadImage(thumbnailURL);
-                    lock (lockobject)
+                    
+                    Image loadedImage = loadImage(thumbnailUrl);
+                    lock (locker)
                     {
                         if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
                             horizontalImages.Images.Add(loadedImage);
                         else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
                             verticalImages.Images.Add(loadedImage);
                         else
-                            squareImages.Images.Add(loadImage(thumbnailURL));
+                            squareImages.Images.Add(loadedImage);
+                        if (loadingForm.InvokeRequired)
+                            updateProgress = new UpdateProgress(() => loadingForm.processValue());
+                        else
+                            loadingForm.processValue();
+                       
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    System.Console.Write("image null");
-                }
-                lock (lockobject)
-                {
-                    //form.scrollProgress(processedImage);
-                    //processedImage++;
-                }
-            }
-            
-        }
-        private void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document)
-        {
-            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
-            {
-                string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
-                try
-                {
-                    Image loadedImage = loadImage(thumbnailUrl);
-                    if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
-                        horizontalImages.Images.Add(loadedImage);
-                    else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
-                        verticalImages.Images.Add(loadedImage);
-                    else
-                        squareImages.Images.Add(loadedImage);
-                    processedImage++;
-                    form.scrollProgress(processedImage);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("something went wrong while downloading images :(");
+                    Debug.WriteLine(e.Message);
+                    MessageBox.Show("something went wrong while downloading images :( Contact dev for this");
+                    Application.Exit();
                 }
             }
 
