@@ -67,7 +67,9 @@ namespace PixivScooper
             string url = "http://www.pixiv.net/member_illust.php?type=illust&id=" + profileId;
             //subject to change if user wants to download other than images
             browser.Navigate(url);
-            if (browser.DocumentText.Contains("errorArea")) return false;
+            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+            
+            if (browser.DocumentText.Contains("errorArea") || browser.DocumentText.Contains("one_column_body")) return false;
             else return true;
         }
         private string illustFilter(string id, MainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it

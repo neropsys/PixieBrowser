@@ -149,6 +149,7 @@ namespace PixivScooper
             if (!htmlHelper.searchById(profileId))
             {
                 MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
+                urlButton.Enabled = true;
                 return;
             }
 
@@ -160,13 +161,20 @@ namespace PixivScooper
             System.Timers.Timer time = new System.Timers.Timer();
             Stopwatch watch = new Stopwatch();
             watch.Start(); //for debug
-
-            Parallel.For(1, pages, (i) =>
+            if (pages == 1)
             {
-                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, i, cookie);
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, 1, cookie);
                 imageHelper.loadThumbnailsPerPage(document, profileId);
+            }
+            else
+            {
+                Parallel.For(1, pages, (i) =>
+                {
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, i, cookie);
+                    imageHelper.loadThumbnailsPerPage(document, profileId);
 
-            });
+                });
+            }
             watch.Stop();
             Debug.WriteLine("Loading time Elapsed={0}", watch.Elapsed);
             watch.Reset();
