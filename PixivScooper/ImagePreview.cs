@@ -16,9 +16,11 @@ namespace PixivScooper
         public ImagePreview(string imgTag)
         {
             InitializeComponent();
+            HtmlHelper htmlHelper = new HtmlHelper();
+            ImageHelper imageHelper = new ImageHelper();
             string[] tagBundle = imgTag.Split('_');
-            string bigImgUrl = HtmlHelper.BigImageUrl(tagBundle[0]);
-            Image originalImage = ImageHelper.LoadOriginalImage(bigImgUrl, tagBundle[0]);
+            string bigImgUrl = htmlHelper.BigImageUrl(tagBundle[0]);
+            Image originalImage = imageHelper.loadOriginalImage(bigImgUrl, tagBundle[0]);
             pictureBox1.Image = originalImage;
 
         }

@@ -29,7 +29,7 @@ namespace PixivScooper
         static ImageList verticalImages;
         public static List<string> squareImageTag{ get;  set;}
         public static List<string> horizontalImageTag{ get;  set;}
-        public static List<string> verticalImagetag { get;  set; }
+        public static List<string> verticalImageTag { get;  set; }
 
         object locker = new object();
         public static CookieContainer cookie{get; set;}
@@ -65,15 +65,13 @@ namespace PixivScooper
             horizontalImageView.MouseDoubleClick += horizontalImageView_MouseDoubleClick;
             verticalImageView.MouseDoubleClick += verticalImageView_MouseDoubleClick;
 
-            squareImageView.ItemActivate += squareImageView_ItemActivate;
-
             tabPage1.Controls.Add(squareImageView);
             tabPage2.Controls.Add(horizontalImageView);
             tabPage3.Controls.Add(verticalImageView);
 
             squareImageTag = new List<string>();
             horizontalImageTag = new List<string>();
-            verticalImagetag = new List<string>();
+            verticalImageTag = new List<string>();
 
             StreamReader reader = new StreamReader("credential.dat");
             string id = reader.ReadLine();
@@ -86,12 +84,6 @@ namespace PixivScooper
             helper.loginSuccess(id, password);
             cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
         }
-
-        void squareImageView_ItemActivate(object sender, EventArgs e)
-        {
-            //ListViewItem item = squareImageView.GetChildAtPoint()
-        }
-
         private void verticalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             foreach (ListViewItem item in verticalImageView.SelectedItems)
@@ -99,7 +91,7 @@ namespace PixivScooper
                 int imgIndex = item.ImageIndex;
                 if (imgIndex >= 0 && imgIndex < verticalImages.Images.Count)
                 {
-                    ImagePreview previewForm = new ImagePreview(MainForm.verticalImagetag[imgIndex]);
+                    ImagePreview previewForm = new ImagePreview(MainForm.verticalImageTag[imgIndex]);
                     previewForm.Show();
                 }
             }
@@ -108,23 +100,28 @@ namespace PixivScooper
 
         void horizontalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            
+            foreach (ListViewItem item in horizontalImageView.SelectedItems)
+            {
+                int imgIndex = item.ImageIndex;
+                if (imgIndex >= 0 && imgIndex < horizontalImages.Images.Count)
+                {
+                    ImagePreview previewForm = new ImagePreview(MainForm.horizontalImageTag[imgIndex]);
+                    previewForm.Show();
+                }
+            }
         }
 
         void squareImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            /*var items = squareImageView.SelectedItems.Count;
-            for (int item = 0; item < items; item++)
+            foreach (ListViewItem item in squareImageView.SelectedItems)
             {
-
-            }*/ //stub for downloading multiple image
-            /*
-            ListViewItem item = squareImageView.SelectedItems[0];
-            Image tag = item.ImageList.Images[item.ImageIndex];
-            if (item != null)
-            {
-                ImagePreview previewImage = new ImagePreview(item);
-            }*/
+                int imgIndex = item.ImageIndex;
+                if (imgIndex >= 0 && imgIndex < squareImages.Images.Count)
+                {
+                    ImagePreview previewForm = new ImagePreview(MainForm.squareImageTag[imgIndex]);
+                    previewForm.Show();
+                }
+            }
         }
 
         
@@ -137,21 +134,26 @@ namespace PixivScooper
             squareImages.Dispose();
             verticalImages.Dispose();
             horizontalImages.Dispose();
+            squareImageTag.Clear();
+            horizontalImageTag.Clear();
+            verticalImageTag.Clear();
             
         }
         private void urlButton_Click(object sender, EventArgs e)
         {
+            HtmlHelper htmlHelper = new HtmlHelper();
+            ImageHelper imageHelper = new ImageHelper();
             urlButton.Enabled = false;
             clearAll();
             profileId = urlTextBox.Text.ToString();
-           
-            if (!helper.searchById(profileId))
+            
+            if (!htmlHelper.searchById(profileId))
             {
                 MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
                 return;
             }
 
-            int pages = helper.maxPage(profileId, IllustType.All);
+            int pages = htmlHelper.maxPage(profileId, IllustType.All);
             int approxImage = 20 * pages;
 
             loadingForm = new Loading(approxImage, "loading thumbnails..");
@@ -162,8 +164,8 @@ namespace PixivScooper
 
             Parallel.For(1, pages, (i) =>
             {
-                HtmlAgilityPack.HtmlDocument document = HtmlHelper.HtmlOnPage(profileId, IllustType.Illust, i, cookie);
-                ImageHelper.LoadThumbnailsPerPage(document, profileId);
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, i, cookie);
+                imageHelper.loadThumbnailsPerPage(document, profileId);
 
             });
             watch.Stop();
@@ -172,13 +174,13 @@ namespace PixivScooper
             watch.Start();
             Task[] loadImageTask= new Task[] {
                 Task.Factory.StartNew(()=>{
-                    ImageHelper.LoadImageList(squareImages, squareImageView);
+                    imageHelper.loadImageList(squareImages, squareImageView);
                 }),
                 Task.Factory.StartNew(()=>{
-                    ImageHelper.LoadImageList(horizontalImages, horizontalImageView);
+                    imageHelper.loadImageList(horizontalImages, horizontalImageView);
                 }),
                 Task.Factory.StartNew(()=>{
-                    ImageHelper.LoadImageList(verticalImages, verticalImageView);
+                    imageHelper.loadImageList(verticalImages, verticalImageView);
                 })};
             
             Task.WaitAll(loadImageTask);

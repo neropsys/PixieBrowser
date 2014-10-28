@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
+using System.Threading;
 namespace PixivScooper
 {
     class HtmlHelper
@@ -44,7 +46,7 @@ namespace PixivScooper
         }
         public void navigateByPage(string id, MainForm.IllustType illustType, int pagenum, WebBrowser browser)
         {
-            string illustPage = IllustFilter(id, illustType);
+            string illustPage = illustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
             browser.Navigate(illustPage);
             while (browser.ReadyState != WebBrowserReadyState.Complete)
@@ -52,9 +54,9 @@ namespace PixivScooper
           
 
         }
-        private static string HtmlPageNum(string id, MainForm.IllustType illustType, int pagenum)
+        private string htmlPageNum(string id, MainForm.IllustType illustType, int pagenum)
         {
-            string illustPage = IllustFilter(id, illustType);
+            string illustPage = illustFilter(id, illustType);
             illustPage += "&p=" + pagenum.ToString();
             return illustPage;
         }
@@ -68,7 +70,7 @@ namespace PixivScooper
             if (browser.DocumentText.Contains("errorArea")) return false;
             else return true;
         }
-        private static string IllustFilter(string id, MainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
+        private string illustFilter(string id, MainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
         {
             string urlTemplate = "http://www.pixiv.net/member_illust.php?";
 
@@ -98,7 +100,7 @@ namespace PixivScooper
         }
         public int maxPage(string id, MainForm.IllustType illustType)
         {
-            string url = IllustFilter(id, MainForm.IllustType.Illust);
+            string url = illustFilter(id, MainForm.IllustType.Illust);
 
             WebBrowser browser = new WebBrowser();
             browser.Navigate(url);
@@ -126,7 +128,7 @@ namespace PixivScooper
                 }
                 if (browser.DocumentText.Contains("class=\"next\""))
                 {
-                    string nextUrl = IllustFilter(id,illustType);
+                    string nextUrl = illustFilter(id,illustType);
                     nextUrl += "&type=illust&p=" + pages.ToString();
                     browser.Navigate(nextUrl);
                     while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
@@ -136,6 +138,20 @@ namespace PixivScooper
             }
             loadingform.Close();
             return pages;
+        }
+
+        public string getImageUrl(string html)
+        {
+            HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+            document.LoadHtml(html);
+            if (document.DocumentNode.SelectNodes("//body") == null)
+                MessageBox.Show("No image has been found. Try restarting application :)");
+            HtmlNode node = document.DocumentNode.SelectNodes("//body")[0];
+
+            string url = Regex.Match(html, "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
+
+            return url;
+
         }
 
         [DllImport("wininet.dll", SetLastError = true)]
@@ -151,15 +167,13 @@ namespace PixivScooper
         
         public static CookieContainer GetUriCookieContainer(Uri uri)
         {
-            CookieContainer cookies = null;
-            // Determine the size of the cookie  
+            CookieContainer cookies = null; 
             int datasize = 8192 * 16;
             StringBuilder cookieData = new StringBuilder(datasize);
             if (!InternetGetCookieEx(uri.ToString(), null, cookieData, ref datasize, InternetCookieHttponly, IntPtr.Zero))
             {
                 if (datasize < 0)
-                    return null;
-                // Allocate stringbuilder large enough to hold the cookie  
+                    return null; 
                 cookieData = new StringBuilder(datasize);
                 if (!InternetGetCookieEx(
                     uri.ToString(),
@@ -177,27 +191,36 @@ namespace PixivScooper
             }
             return cookies;
         }  
-        public static HtmlAgilityPack.HtmlDocument HtmlOnPage(string userId, MainForm.IllustType illustType, int page, CookieContainer cookie){
-           
-            string url = HtmlPageNum(userId, illustType, page);
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-            req.Accept = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
-            req.ContentType = "applicaton/x-www-form-urlencoded";
-            req.KeepAlive = true;
-            req.CookieContainer = cookie;
+        public HtmlAgilityPack.HtmlDocument htmlOnPage(string userId, MainForm.IllustType illustType, int page, CookieContainer cookie){
 
-            HttpWebResponse res = (HttpWebResponse)req.GetResponse();
-            StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
-            string result = sr.ReadToEnd();
+            try
+            {
+                string url = htmlPageNum(userId, illustType, page);
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+                req.Accept = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+                req.ContentType = "applicaton/x-www-form-urlencoded";
+                req.KeepAlive = true;
+                req.CookieContainer = cookie;
 
-            HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-            document.LoadHtml(result);
+                HttpWebResponse res = (HttpWebResponse)req.GetResponse();
 
+                StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
+                string result = sr.ReadToEnd();
 
-            return document;
+                HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                document.LoadHtml(result);
+                return document;
+            }
+            catch (HtmlWebException e)
+            {
+                MessageBox.Show("Failed to download page",e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Thread.CurrentThread.Abort();
+            }
+            return null;
+            
         }
 
-        public static string BigImageUrl(string imgId)
+        public string BigImageUrl(string imgId)
         {
             string bigImageUrl = "http://www.pixiv.net/member_illust.php?mode=big&illust_id=" + imgId;
             string referer = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id" + imgId;
@@ -212,11 +235,12 @@ namespace PixivScooper
                 StreamReader reader = new StreamReader(requester.GetResponse().GetResponseStream(), Encoding.UTF8);
                 string html = reader.ReadToEnd();
 
-                return ImageHelper.GetImageUrl(html);
+                return getImageUrl(html);
             }
             catch (WebException e)
             {
-                MessageBox.Show("Img download Failed :( reason =>{0}", e.Message);
+                MessageBox.Show("Img download Failed :( ", e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Thread.CurrentThread.Abort();
             }
             return null;
 

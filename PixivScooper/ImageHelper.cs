@@ -15,11 +15,11 @@ namespace PixivScooper
 
     class ImageHelper
     {
-        private static object locker = new object();
+        private object locker = new object();
         private delegate void CallbackDelegate();
-        static CallbackDelegate updateProgress = new CallbackDelegate(()=>MainForm.getLoadingForm().processValue());
+        CallbackDelegate updateProgress = new CallbackDelegate(()=>MainForm.getLoadingForm().processValue());
 
-        public static void LoadImageList(ImageList imageList, ListView listview)
+        public void loadImageList(ImageList imageList, ListView listview)
         {
             for (int counter = 0; counter < imageList.Images.Count; counter++)
             {
@@ -37,17 +37,20 @@ namespace PixivScooper
                 listview.LargeImageList = imageList;
         }
 
-        public static void LoadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document, string userId)
+        public void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document, string userId)
         {
             if (document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img") == null)
-                MessageBox.Show("No image has been found. Try restarting application :)");
+            {
+                MessageBox.Show("No image has been found. Try restarting application :3", "Failed to get images", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                
+            }
             foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
             {
                 string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
                 try
                 {
 
-                    Image loadedImage = LoadImage(thumbnailUrl, userId);
+                    Image loadedImage = loadImage(thumbnailUrl, userId);
 
                     string[] delimiters = new string[] { "/", "_" };
                     string[] parsedUrl = thumbnailUrl.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
@@ -78,9 +81,9 @@ namespace PixivScooper
                         {
                             MainForm.getVerticalImageList().Images.Add(loadedImage);
                             tag += "_V";
-                            if(MainForm.verticalImagetag.Count==0)
+                            if(MainForm.verticalImageTag.Count==0)
                                 Debug.WriteLine("zero index image info {0}", tag);
-                            MainForm.verticalImagetag.Add(tag);
+                            MainForm.verticalImageTag.Add(tag);
                         }
                         else
                         {
@@ -104,20 +107,7 @@ namespace PixivScooper
             }
 
         }
-        public static string GetImageUrl(string html)
-        {
-            HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-            document.LoadHtml(html);
-            if (document.DocumentNode.SelectNodes("//body")==null)
-                MessageBox.Show("No image has been found. Try restarting application :)");
-            HtmlNode node = document.DocumentNode.SelectNodes("//body")[0];
-   
-            string url = Regex.Match(html, "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
-            
-            return url;
-
-        }
-        public static Image LoadOriginalImage(string imgUrl, string imageId)
+        public Image loadOriginalImage(string imgUrl, string imageId)
         {
             try
             {
@@ -134,7 +124,7 @@ namespace PixivScooper
             }
             return null;
         }
-        public static Image LoadImage(string imageUrl, string userId)
+        Image loadImage(string imageUrl, string userId)
         {
             try
             {
