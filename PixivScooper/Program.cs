@@ -15,7 +15,6 @@ namespace PixivScooper
         public static string id;
         public static string password;
         public static bool isLoggedIn = false;
-        public static string referer;
         [STAThread]
         static void Main()
         {

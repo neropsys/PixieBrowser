@@ -4,6 +4,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using HtmlAgilityPack;
 namespace PixivScooper
 {
     class HtmlHelper
@@ -92,7 +93,6 @@ namespace PixivScooper
                 return "";
 
             }
-            Program.referer = urlTemplate;
             return urlTemplate;
 
         }
@@ -194,6 +194,31 @@ namespace PixivScooper
 
 
             return document;
+        }
+
+        public static string BigImageUrl(string imgId)
+        {
+            string bigImageUrl = "http://www.pixiv.net/member_illust.php?mode=big&illust_id=" + imgId;
+            string referer = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id" + imgId;
+            try
+            {
+                HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(bigImageUrl);
+                requester.Referer = referer;
+                requester.CookieContainer = MainForm.cookie;
+                requester.Accept = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+                requester.KeepAlive = true;
+
+                StreamReader reader = new StreamReader(requester.GetResponse().GetResponseStream(), Encoding.UTF8);
+                string html = reader.ReadToEnd();
+
+                return ImageHelper.GetImageUrl(html);
+            }
+            catch (WebException e)
+            {
+                MessageBox.Show("Img download Failed :( reason =>{0}", e.Message);
+            }
+            return null;
+
         }
         
     }

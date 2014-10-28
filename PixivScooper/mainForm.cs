@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -26,14 +27,19 @@ namespace PixivScooper
         static ImageList squareImages;
         static ImageList horizontalImages;
         static ImageList verticalImages;
+        public static List<string> squareImageTag{ get;  set;}
+        public static List<string> horizontalImageTag{ get;  set;}
+        public static List<string> verticalImagetag { get;  set; }
 
         object locker = new object();
-        public static CookieContainer cookie;
+        public static CookieContainer cookie{get; set;}
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
         HtmlHelper helper;
         WebBrowser browser;
         static Loading loadingForm;
+
+        string profileId;
 
         public MainForm()
         {
@@ -59,10 +65,15 @@ namespace PixivScooper
             horizontalImageView.MouseDoubleClick += horizontalImageView_MouseDoubleClick;
             verticalImageView.MouseDoubleClick += verticalImageView_MouseDoubleClick;
 
+            squareImageView.ItemActivate += squareImageView_ItemActivate;
+
             tabPage1.Controls.Add(squareImageView);
             tabPage2.Controls.Add(horizontalImageView);
             tabPage3.Controls.Add(verticalImageView);
-                
+
+            squareImageTag = new List<string>();
+            horizontalImageTag = new List<string>();
+            verticalImagetag = new List<string>();
 
             StreamReader reader = new StreamReader("credential.dat");
             string id = reader.ReadLine();
@@ -76,23 +87,44 @@ namespace PixivScooper
             cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
         }
 
+        void squareImageView_ItemActivate(object sender, EventArgs e)
+        {
+            //ListViewItem item = squareImageView.GetChildAtPoint()
+        }
+
         private void verticalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            ListViewItem selectedImage = verticalImageView.GetItemAt(e.X, e.Y);
-            if (selectedImage != null)
+            foreach (ListViewItem item in verticalImageView.SelectedItems)
             {
-                ImagePreview previewImage = new ImagePreview(selectedImage.Tag);
+                int imgIndex = item.ImageIndex;
+                if (imgIndex >= 0 && imgIndex < verticalImages.Images.Count)
+                {
+                    ImagePreview previewForm = new ImagePreview(MainForm.verticalImagetag[imgIndex]);
+                    previewForm.Show();
+                }
             }
+
         }
 
         void horizontalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
 
         void squareImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            throw new NotImplementedException();
+            /*var items = squareImageView.SelectedItems.Count;
+            for (int item = 0; item < items; item++)
+            {
+
+            }*/ //stub for downloading multiple image
+            /*
+            ListViewItem item = squareImageView.SelectedItems[0];
+            Image tag = item.ImageList.Images[item.ImageIndex];
+            if (item != null)
+            {
+                ImagePreview previewImage = new ImagePreview(item);
+            }*/
         }
 
         
@@ -110,15 +142,15 @@ namespace PixivScooper
         private void urlButton_Click(object sender, EventArgs e)
         {
             clearAll();
-            string userUrlId = urlTextBox.Text.ToString();
+            profileId = urlTextBox.Text.ToString();
            
-            if (!helper.searchById(userUrlId))
+            if (!helper.searchById(profileId))
             {
                 MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
                 return;
             }
 
-            int pages = helper.maxPage(userUrlId, IllustType.All);
+            int pages = helper.maxPage(profileId, IllustType.All);
             int approxImage = 20 * pages;
 
             loadingForm = new Loading(approxImage, "loading thumbnails..");
@@ -129,8 +161,8 @@ namespace PixivScooper
 
             Parallel.For(1, pages, (i) =>
             {
-                HtmlAgilityPack.HtmlDocument document = HtmlHelper.HtmlOnPage(userUrlId, IllustType.Illust, i, cookie);
-                ImageHelper.loadThumbnailsPerPage(document);
+                HtmlAgilityPack.HtmlDocument document = HtmlHelper.HtmlOnPage(profileId, IllustType.Illust, i, cookie);
+                ImageHelper.LoadThumbnailsPerPage(document, profileId);
 
             });
             watch.Stop();
@@ -139,13 +171,13 @@ namespace PixivScooper
             watch.Start();
             Task[] loadImageTask= new Task[] {
                 Task.Factory.StartNew(()=>{
-                    ImageHelper.loadImageList(squareImages, squareImageView);
+                    ImageHelper.LoadImageList(squareImages, squareImageView);
                 }),
                 Task.Factory.StartNew(()=>{
-                    ImageHelper.loadImageList(horizontalImages, horizontalImageView);
+                    ImageHelper.LoadImageList(horizontalImages, horizontalImageView);
                 }),
                 Task.Factory.StartNew(()=>{
-                    ImageHelper.loadImageList(verticalImages, verticalImageView);
+                    ImageHelper.LoadImageList(verticalImages, verticalImageView);
                 })};
             
             Task.WaitAll(loadImageTask);

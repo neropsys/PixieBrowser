@@ -13,27 +13,22 @@ namespace PixivScooper
 {
     public partial class ImagePreview : Form
     {
-
-        public ImagePreview()
+        public ImagePreview(string imgTag)
         {
             InitializeComponent();
+            string[] tagBundle = imgTag.Split('_');
+            string bigImgUrl = HtmlHelper.BigImageUrl(tagBundle[0]);
+            Image originalImage = ImageHelper.LoadOriginalImage(bigImgUrl, tagBundle[0]);
+            pictureBox1.Image = originalImage;
+
+
         }
 
-        public ImagePreview(object imageTag)
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
-            try{
-                ImageTag imageInfo = (ImageTag)imageTag;
-                string imglink = imageInfo.imageLink;
-                string[] delimiter = new string[]{"/", "_"};
-                string[] keyString = imglink.Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
-                string originalUrl = "http://i1.pixiv.net/img-inf/img/2010/08/04/00/30/09/12326057_s.jpg";
-                //HttpWebRequest requester = (HttpWebRequest)WebRequest.Create();
-            }
-            catch (Exception)
-            {
 
-            }
-            
         }
+
+        
     }
 }
