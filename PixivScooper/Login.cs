@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text;
 using System.Windows.Forms;
-
+			
 namespace PixivScooper
 {
     public partial class Login : Form
     {
         WebBrowser browser;
-        HtmlHelper helper;
+        HtmlHelper htmlHelper;
         string id, password;
+        CspParameters cspp = new CspParameters();
+        RSACryptoServiceProvider rsa;
+        const string pubKey = "rsaPubkEy.dat";
+        const string keyName = "credKey";
         public Login()
         {
             InitializeComponent();
@@ -22,33 +31,26 @@ namespace PixivScooper
         }
 
         private void Login_Click(object sender, EventArgs e)
-        {   
+        {
+            loginButton.Enabled = false;
             id = pixivId.Text.ToString();
             password = pixivPasswd.Text.ToString();
             // if any one of the input is null, do not create file and return;
             if (id == "" || password == "") return;
-            helper = new HtmlHelper();
-            if (!helper.loginSuccess(id, password))
+            htmlHelper = new HtmlHelper();
+            if (!htmlHelper.loginSuccess(id, password))
             {
                 MessageBox.Show("failed to login. check id and password");
+                loginButton.Enabled = true;
                 return;
             }
-            saveCredential();
             MessageBox.Show("login successful!");
             Program.isLoggedIn = true;
             Program.id = this.id;
             Program.password = this.password;
             Close();
         }
-        private void saveCredential()
-        {
-            System.IO.FileStream credential = System.IO.File.Create("credential.dat");
-            string credentialString = id + "\n" + password;
-            byte[] encodedString = new UTF8Encoding(true).GetBytes(credentialString);
-            credential.Write(encodedString, 0, encodedString.Length);
-            credential.Close();
-        }
-        private void Login_KeyDown(object sender, KeyEventArgs e)
+       private void Login_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -56,12 +58,6 @@ namespace PixivScooper
             }
         }
 
-        private void login_Closed(object sender, FormClosedEventArgs e)
-        {
-            if (!Program.isLoggedIn)
-                System.IO.File.Delete("credential.dat");
-
-        }
     }
 }
 

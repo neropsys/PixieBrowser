@@ -32,7 +32,7 @@
             this.pixivPasswd = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.loginButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // pixivId
@@ -46,6 +46,7 @@
             // 
             this.pixivPasswd.Location = new System.Drawing.Point(57, 31);
             this.pixivPasswd.Name = "pixivPasswd";
+            this.pixivPasswd.PasswordChar = '~';
             this.pixivPasswd.Size = new System.Drawing.Size(100, 21);
             this.pixivPasswd.TabIndex = 1;
             this.pixivPasswd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Login_KeyDown);
@@ -68,25 +69,25 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Pswd";
             // 
-            // button1
+            // loginButton
             // 
-            this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button1.Location = new System.Drawing.Point(175, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 34);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Login";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Login_Click);
-            this.button1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Login_KeyDown);
+            this.loginButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.loginButton.Location = new System.Drawing.Point(175, 12);
+            this.loginButton.Name = "loginButton";
+            this.loginButton.Size = new System.Drawing.Size(75, 34);
+            this.loginButton.TabIndex = 4;
+            this.loginButton.Text = "Login";
+            this.loginButton.UseVisualStyleBackColor = true;
+            this.loginButton.Click += new System.EventHandler(this.Login_Click);
+            this.loginButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Login_KeyDown);
             // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.button1;
+            this.CancelButton = this.loginButton;
             this.ClientSize = new System.Drawing.Size(262, 70);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.loginButton);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pixivPasswd);
@@ -98,7 +99,6 @@
             this.Name = "Login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Login";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.login_Closed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -110,6 +110,6 @@
         private System.Windows.Forms.TextBox pixivPasswd;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button loginButton;
     }
 }

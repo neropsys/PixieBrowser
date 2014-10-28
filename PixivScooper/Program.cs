@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace PixivScooper
 {
     static class Program
@@ -15,22 +11,15 @@ namespace PixivScooper
         public static string id;
         public static string password;
         public static bool isLoggedIn = false;
+
         [STAThread]
         static void Main()
         {
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new ImagePreview());
-            if (!System.IO.File.Exists("credential.dat"))
-            {
-                Application.Run(new Login());
-
-            }
-            else isLoggedIn = true;
-
-            if(isLoggedIn)
-                Application.Run(new MainForm());
+            Application.Run(new Login());
+            Application.Run(new MainForm());
            
         }
         

@@ -73,9 +73,8 @@ namespace PixivScooper
             horizontalImageTag = new List<string>();
             verticalImageTag = new List<string>();
 
-            StreamReader reader = new StreamReader("credential.dat");
-            string id = reader.ReadLine();
-            string password = reader.ReadLine();
+            string id = Program.id;
+            string password = Program.password;
             Program.id = id;
             Program.password = password;
             helper = new HtmlHelper();
@@ -208,7 +207,7 @@ namespace PixivScooper
         }
         private void downloadSelected_Click(object sender, EventArgs e)
         {
-
+            Debug.Write("number of selected elements : {0}", squareImageView.SelectedItems.Count.ToString());
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
