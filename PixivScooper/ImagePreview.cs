@@ -21,7 +21,6 @@ namespace PixivScooper
             Image originalImage = ImageHelper.LoadOriginalImage(bigImgUrl, tagBundle[0]);
             pictureBox1.Image = originalImage;
 
-
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

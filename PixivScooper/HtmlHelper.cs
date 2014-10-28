@@ -107,6 +107,7 @@ namespace PixivScooper
             bool maxPageReached = false;
             string temp;
             Loading loadingform = new Loading(100, "loading pages..");
+            loadingform.Activate();
             loadingform.Show();
             while (!maxPageReached)
             {

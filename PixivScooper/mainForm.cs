@@ -141,6 +141,7 @@ namespace PixivScooper
         }
         private void urlButton_Click(object sender, EventArgs e)
         {
+            urlButton.Enabled = false;
             clearAll();
             profileId = urlTextBox.Text.ToString();
            
@@ -184,7 +185,7 @@ namespace PixivScooper
             watch.Stop();
             Debug.WriteLine("loading image to view Elapsed={0}", watch.Elapsed);
             loadingForm.Close();
-            
+            urlButton.Enabled = true;
         }
         private ListView setupViewProperty(string viewName)
         {
