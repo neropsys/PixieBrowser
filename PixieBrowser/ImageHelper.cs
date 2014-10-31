@@ -15,6 +15,11 @@ namespace PixivScooper
 
     class ImageHelper
     {
+        interface ImageLoader
+        {
+            void loadImageList(ImageList imageList, ListView listview);
+
+        }
         private object locker = new object();
         private delegate void CallbackDelegate();
         CallbackDelegate updateProgress = new CallbackDelegate(()=>MainForm.getLoadingForm().processValue());

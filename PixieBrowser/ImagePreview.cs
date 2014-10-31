@@ -25,11 +25,15 @@ namespace PixivScooper
 
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-
+            Close();
         }
 
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            pictureBox1_DoubleClick(this, e);
+        }
         
     }
 }

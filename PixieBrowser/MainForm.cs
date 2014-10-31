@@ -27,12 +27,12 @@ namespace PixivScooper
         static ImageList squareImages;
         static ImageList horizontalImages;
         static ImageList verticalImages;
-        public static List<string> squareImageTag{ get;  set;}
-        public static List<string> horizontalImageTag{ get;  set;}
-        public static List<string> verticalImageTag { get;  set; }
-
+        public static List<string> squareImageTag;
+        public static List<string> horizontalImageTag;
+        public static List<string> verticalImageTag;
+        public static List<string> selectedImageList;
         object locker = new object();
-        public static CookieContainer cookie{get; set;}
+        public static CookieContainer cookie;
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
         HtmlHelper helper;
@@ -72,6 +72,7 @@ namespace PixivScooper
             squareImageTag = new List<string>();
             horizontalImageTag = new List<string>();
             verticalImageTag = new List<string>();
+            selectedImageList = new List<string>();
 
             string id = Program.id;
             string password = Program.password;
@@ -90,7 +91,7 @@ namespace PixivScooper
                 int imgIndex = item.ImageIndex;
                 if (imgIndex >= 0 && imgIndex < verticalImages.Images.Count)
                 {
-                    ImagePreview previewForm = new ImagePreview(MainForm.verticalImageTag[imgIndex]);
+                    ImagePreview previewForm = new ImagePreview(verticalImageTag[imgIndex]);
                     previewForm.Show();
                 }
             }
@@ -104,7 +105,7 @@ namespace PixivScooper
                 int imgIndex = item.ImageIndex;
                 if (imgIndex >= 0 && imgIndex < horizontalImages.Images.Count)
                 {
-                    ImagePreview previewForm = new ImagePreview(MainForm.horizontalImageTag[imgIndex]);
+                    ImagePreview previewForm = new ImagePreview(horizontalImageTag[imgIndex]);
                     previewForm.Show();
                 }
             }
@@ -117,7 +118,7 @@ namespace PixivScooper
                 int imgIndex = item.ImageIndex;
                 if (imgIndex >= 0 && imgIndex < squareImages.Images.Count)
                 {
-                    ImagePreview previewForm = new ImagePreview(MainForm.squareImageTag[imgIndex]);
+                    ImagePreview previewForm = new ImagePreview(squareImageTag[imgIndex]);
                     previewForm.Show();
                 }
             }
@@ -136,7 +137,7 @@ namespace PixivScooper
             squareImageTag.Clear();
             horizontalImageTag.Clear();
             verticalImageTag.Clear();
-            
+            selectedImageList.Clear();
         }
         private void urlButton_Click(object sender, EventArgs e)
         {
@@ -158,9 +159,6 @@ namespace PixivScooper
 
             loadingForm = new Loading(approxImage, "loading thumbnails..");
             loadingForm.Show();
-            System.Timers.Timer time = new System.Timers.Timer();
-            Stopwatch watch = new Stopwatch();
-            watch.Start(); //for debug
             if (pages == 1)
             {
                 HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, 1, cookie);
@@ -175,10 +173,6 @@ namespace PixivScooper
 
                 });
             }
-            watch.Stop();
-            Debug.WriteLine("Loading time Elapsed={0}", watch.Elapsed);
-            watch.Reset();
-            watch.Start();
             Task[] loadImageTask= new Task[] {
                 Task.Factory.StartNew(()=>{
                     imageHelper.loadImageList(squareImages, squareImageView);
@@ -191,8 +185,6 @@ namespace PixivScooper
                 })};
             
             Task.WaitAll(loadImageTask);
-            watch.Stop();
-            Debug.WriteLine("loading image to view Elapsed={0}", watch.Elapsed);
             loadingForm.Close();
             urlButton.Enabled = true;
         }
@@ -207,6 +199,7 @@ namespace PixivScooper
             view.View = View.LargeIcon;
             view.Dock = DockStyle.Fill;
             view.UseCompatibleStateImageBehavior = false;
+            view.MultiSelect = true;
             return view;
         }
         private void downloadAll_Click(object sender, EventArgs e)
@@ -214,8 +207,30 @@ namespace PixivScooper
 
         }
         private void downloadSelected_Click(object sender, EventArgs e)
-        {
+         {
             Debug.Write("number of selected elements : {0}", squareImageView.SelectedItems.Count.ToString());
+            switch (imageTabControl.SelectedIndex)
+            {
+                case 0:
+                    foreach (ListViewItem image in squareImageView.SelectedItems)
+                    {
+                        int imgIndex = image.ImageIndex;
+                        selectedImageList.Add(squareImageTag[imgIndex]);
+                    }
+                    break;
+                case 1:
+                  
+                    break;
+                case 2:
+                    foreach (ListViewItem image in verticalImageView.SelectedItems)
+                    {
+                        int imgIndex = image.ImageIndex;
+                        selectedImageList.Add(verticalImageTag[imgIndex]);
+                    }
+                    break;
+            }
+
+
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -226,5 +241,14 @@ namespace PixivScooper
         public static ImageList getHorizontalImageList() { return horizontalImages; }
         public static ImageList getVerticalImageList() { return verticalImages; }
         public static Loading getLoadingForm() { return loadingForm; }
+
+
+        private void urlTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                urlButton_Click(this, e);
+            }
+        }
     }
 }

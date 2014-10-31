@@ -157,7 +157,7 @@ namespace PixivScooper
         }
 
         [DllImport("wininet.dll", SetLastError = true)]
-        public static extern bool InternetGetCookieEx(
+        private static extern bool InternetGetCookieEx(
             string url,
             string cookieName,
             StringBuilder cookieData,

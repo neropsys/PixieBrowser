@@ -49,6 +49,7 @@
             this.urlTextBox.Name = "urlTextBox";
             this.urlTextBox.Size = new System.Drawing.Size(440, 21);
             this.urlTextBox.TabIndex = 0;
+            this.urlTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.urlTextBox_KeyDown);
             // 
             // label1
             // 
@@ -164,7 +165,7 @@
             this.MinimumSize = new System.Drawing.Size(324, 380);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "PixieBrowser";
             this.imageTabControl.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
