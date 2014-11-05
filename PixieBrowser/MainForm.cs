@@ -211,7 +211,39 @@ namespace PixivScooper
         }
         private void downloadAll_Click(object sender, EventArgs e)
         {
+            switch (imageTabControl.SelectedIndex)
+            {
+                case 0:
+                    foreach (ListViewItem image in squareImageView.Items)
+                    {
+                        int imgIndex = image.ImageIndex;
+                        selectedImageList.Add(squareImageTag[imgIndex]);
+                    }
+                    break;
+                case 1:
+                    foreach (ListViewItem image in horizontalImageView.Items)
+                    {
+                        int imgIndex = image.ImageIndex;
+                        selectedImageList.Add(horizontalImageTag[imgIndex]);
+                    }
 
+                    break;
+                case 2:
+                    foreach (ListViewItem image in verticalImageView.Items)
+                    {
+                        int imgIndex = image.ImageIndex;
+                        selectedImageList.Add(verticalImageTag[imgIndex]);
+                    }
+                    break;
+            }
+            Parallel.ForEach(selectedImageList, image =>
+            {
+                string[] parsedTag = image.Split('_');
+                string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
+                byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
+                File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + ".png", byteImage);
+            });
+            selectedImageList.Clear();
         }
         private void downloadSelected_Click(object sender, EventArgs e)
          {
@@ -241,13 +273,14 @@ namespace PixivScooper
                     }
                     break;
             }
-            foreach (string image in selectedImageList)
-            {
+            Parallel.ForEach(selectedImageList, image => { 
                 string[] parsedTag = image.Split('_');
                 string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
                 byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
                 File.WriteAllBytes(fileDirectory+"\\"+parsedTag[0]+".png", byteImage);
-            }
+            });
+            
+            selectedImageList.Clear();
 
         }
 
