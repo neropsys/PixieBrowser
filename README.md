@@ -21,4 +21,7 @@ Requires .Net Framework 4.0
 
 [Download .Net] (http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 
+UI Preview
+==============
 
+![alt tag](https://github.com/neropsys/PixieBrowser/blob/master/K-86.png)
