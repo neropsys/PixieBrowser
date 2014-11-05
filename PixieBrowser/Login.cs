@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text;
 using System.Windows.Forms;
 			
 namespace PixivScooper
@@ -18,11 +17,7 @@ namespace PixivScooper
     {
         WebBrowser browser;
         HtmlHelper htmlHelper;
-        string id, password;
-        CspParameters cspp = new CspParameters();
-        RSACryptoServiceProvider rsa;
-        const string pubKey = "rsaPubkEy.dat";
-        const string keyName = "credKey";
+        string id, password;     
         public Login()
         {
             InitializeComponent();

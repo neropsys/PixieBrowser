@@ -7,16 +7,29 @@ using System.Windows.Forms;
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics;
 namespace PixivScooper
 {
     class HtmlHelper
     {
         private const Int32 InternetCookieHttponly = 0x2000;
+        private const string acceptHeader = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+        bool isloggedIn = false;
+
+        [DllImport("wininet.dll", SetLastError = true)]
+        private static extern bool InternetGetCookieEx(
+            string url,
+            string cookieName,
+            StringBuilder cookieData,
+            ref int size,
+            Int32 dwFlags,
+            IntPtr lpReserved);
+
         public HtmlHelper()
         {
 
         }
-        bool isloggedIn = false;
+        
         public bool loginSuccess(string id, string password)
         {
             WebBrowser browser = new WebBrowser();
@@ -43,7 +56,7 @@ namespace PixivScooper
                 isloggedIn = true;
             
             return isloggedIn;
-        }
+        }      
         public void navigateByPage(string id, MainForm.IllustType illustType, int pagenum, WebBrowser browser)
         {
             string illustPage = illustFilter(id, illustType);
@@ -100,7 +113,8 @@ namespace PixivScooper
             return urlTemplate;
 
         }
-        public int maxPage(string id, MainForm.IllustType illustType)
+
+        /*public int maxPage(string id, MainForm.IllustType illustType)
         {
             string url = illustFilter(id, MainForm.IllustType.Illust);
 
@@ -140,8 +154,62 @@ namespace PixivScooper
             }
             loadingform.Close();
             return pages;
+        }*/
+        private HttpWebRequest setupRequest(string url, CookieContainer cookie)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Accept = acceptHeader;
+            request.ContentType = "applicaton/x-www-form-urlencoded";
+            request.KeepAlive = true;
+            request.CookieContainer = cookie;
+            return request;
         }
-
+        public int maxPage(string id, MainForm.IllustType illustType, CookieContainer cookie)
+        {
+            string url = illustFilter(id, illustType);
+            bool maxPageReached = false;
+            int pages = 1;
+            HttpWebRequest request = setupRequest(url, cookie);
+            Loading loadingForm = new Loading(100, "loading pages...");
+            loadingForm.Activate();
+            loadingForm.Show();
+            string temp; 
+            loadingForm.processValue();
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
+            string result = sr.ReadToEnd();
+            while (!maxPageReached)
+            {
+                
+                temp = "p=" + (pages + 1).ToString();//"href=\""+ "?id=" + id + "&amp;type=illust"+ "&amp;p=" + "2"+"\"";
+                if (!result.Contains("pager-container") ||
+                    !result.Contains("_thumbnail") ||
+                    !result.Contains("rel=\"next\""))
+                {
+                    loadingForm.Close();
+                    return pages;
+                }
+                if (result.Contains(temp))
+                {
+                    pages++;
+                    continue;
+                }
+                if (result.Contains("class=\"next\""))
+                {
+                    string nextUrl = illustFilter(id, illustType);
+                    nextUrl += "&type=illust&p=" + pages.ToString();
+                    request = setupRequest(nextUrl, cookie);
+                    response = (HttpWebResponse)request.GetResponse();
+                    sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
+                    result = sr.ReadToEnd();
+                    continue;
+                }
+                else
+                    maxPageReached = true;
+            }
+            loadingForm.Close();
+            return pages;
+        }
         public string getImageUrl(string html)
         {
             HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
@@ -155,18 +223,6 @@ namespace PixivScooper
             return url;
 
         }
-
-        [DllImport("wininet.dll", SetLastError = true)]
-        private static extern bool InternetGetCookieEx(
-            string url,
-            string cookieName,
-            StringBuilder cookieData,
-            ref int size,
-            Int32 dwFlags,
-            IntPtr lpReserved);
-
-
-        
         public static CookieContainer GetUriCookieContainer(Uri uri)
         {
             CookieContainer cookies = null; 
@@ -199,7 +255,7 @@ namespace PixivScooper
             {
                 string url = htmlPageNum(userId, illustType, page);
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-                req.Accept = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+                req.Accept = acceptHeader;
                 req.ContentType = "applicaton/x-www-form-urlencoded";
                 req.KeepAlive = true;
                 req.CookieContainer = cookie;
@@ -231,7 +287,7 @@ namespace PixivScooper
                 HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(bigImageUrl);
                 requester.Referer = referer;
                 requester.CookieContainer = MainForm.cookie;
-                requester.Accept = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+                requester.Accept = acceptHeader;
                 requester.KeepAlive = true;
 
                 StreamReader reader = new StreamReader(requester.GetResponse().GetResponseStream(), Encoding.UTF8);

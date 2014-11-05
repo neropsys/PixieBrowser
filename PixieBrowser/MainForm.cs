@@ -38,7 +38,7 @@ namespace PixivScooper
         HtmlHelper helper;
         WebBrowser browser;
         static Loading loadingForm;
-
+        static string fileDirectory;
         string profileId;
 
         public MainForm()
@@ -154,7 +154,7 @@ namespace PixivScooper
                 return;
             }
 
-            int pages = htmlHelper.maxPage(profileId, IllustType.All);
+            int pages = htmlHelper.maxPage(profileId, IllustType.Illust, cookie);
             int approxImage = 20 * pages;
 
             loadingForm = new Loading(approxImage, "loading thumbnails..");
@@ -219,7 +219,12 @@ namespace PixivScooper
                     }
                     break;
                 case 1:
-                  
+                    foreach (ListViewItem image in horizontalImageView.SelectedItems)
+                    {
+                        int imgIndex = image.ImageIndex;
+                        selectedImageList.Add(horizontalImageTag[imgIndex]);
+                    }
+                    
                     break;
                 case 2:
                     foreach (ListViewItem image in verticalImageView.SelectedItems)
@@ -229,7 +234,7 @@ namespace PixivScooper
                     }
                     break;
             }
-
+          
 
         }
 
@@ -249,6 +254,13 @@ namespace PixivScooper
             {
                 urlButton_Click(this, e);
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.ShowDialog();
+            fileDirectory = dlg.SelectedPath;
         }
     }
 }
