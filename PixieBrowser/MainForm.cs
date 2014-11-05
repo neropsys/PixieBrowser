@@ -8,7 +8,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-namespace PixivScooper
+namespace PixieBrowser
 {
     public partial class MainForm : Form
     {
@@ -74,16 +74,10 @@ namespace PixivScooper
             horizontalImageTag = new List<string>();
             verticalImageTag = new List<string>();
             selectedImageList = new List<string>();
-
-            string id = Program.id;
-            string password = Program.password;
-            Program.id = id;
-            Program.password = password;
             htmlHelper = new HtmlHelper();
             imageHelper = new ImageHelper();
             browser = new WebBrowser();
             browser.ScriptErrorsSuppressed = true;
-            htmlHelper.loginSuccess(id, password);
             cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
             if (fileDirectory == null)
             {

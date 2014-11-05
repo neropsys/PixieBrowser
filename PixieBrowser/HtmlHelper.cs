@@ -8,7 +8,7 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Diagnostics;
-namespace PixivScooper
+namespace PixieBrowser
 {
     class HtmlHelper
     {
@@ -36,25 +36,16 @@ namespace PixivScooper
             browser.ScriptErrorsSuppressed = true;
             browser.Navigate("www.pixiv.net/login.php?");
             while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+            browser.Document.GetElementById("pixiv_id").InnerText = id;
+            browser.Document.GetElementById("pass").InnerText = password;
+            browser.Document.GetElementById("login_submit").InvokeMember("click");
+            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
             if (browser.DocumentText.Contains("not-logged-in"))
-            {
-                browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler((object sender, WebBrowserDocumentCompletedEventArgs e) =>
-                {
-                    if (browser.ReadyState == WebBrowserReadyState.Complete)
-                    {
-                        if (browser.DocumentText.Contains("not-logged-in"))
-                            isloggedIn = false;
-                    }
-                });
-                browser.Document.GetElementById("pixiv_id").InnerText = id;
-                browser.Document.GetElementById("pass").InnerText = password;
-                browser.Document.GetElementById("login_submit").InvokeMember("click");
-
-
-            }
-            else 
+                isloggedIn = false;
+            else
                 isloggedIn = true;
-            
+
+
             return isloggedIn;
         }      
         public void navigateByPage(string id, MainForm.IllustType illustType, int pagenum, WebBrowser browser)

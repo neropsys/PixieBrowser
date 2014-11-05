@@ -1,4 +1,4 @@
-﻿namespace PixivScooper
+﻿namespace PixieBrowser
 {
     partial class ImagePreview
     {

@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 			
-namespace PixivScooper
+namespace PixieBrowser
 {
     public partial class Login : Form
     {
@@ -52,6 +52,11 @@ namespace PixivScooper
                 Login_Click(this, e);
             }
         }
+
+       private void Login_FormClosed(object sender, FormClosedEventArgs e)
+       {
+           Application.Exit();
+       }
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-namespace PixivScooper
+namespace PixieBrowser
 {
     static class Program
     {

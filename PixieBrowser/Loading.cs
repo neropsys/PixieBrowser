@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace PixivScooper
+namespace PixieBrowser
 {
     public partial class Loading : Form
     {
