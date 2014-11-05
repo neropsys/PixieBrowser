@@ -27,7 +27,7 @@ namespace PixivScooper
         static ImageList squareImages;
         static ImageList horizontalImages;
         static ImageList verticalImages;
-        public static List<string> squareImageTag;
+        public static List<string> squareImageTag;//format of tag : imageId(00000)/isSpecial(_0/_1)/imageType(_H, _V, _S)
         public static List<string> horizontalImageTag;
         public static List<string> verticalImageTag;
         public static List<string> selectedImageList;
@@ -35,7 +35,8 @@ namespace PixivScooper
         public static CookieContainer cookie;
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
-        HtmlHelper helper;
+        HtmlHelper htmlHelper;
+        ImageHelper imageHelper;
         WebBrowser browser;
         static Loading loadingForm;
         static string fileDirectory;
@@ -78,11 +79,17 @@ namespace PixivScooper
             string password = Program.password;
             Program.id = id;
             Program.password = password;
-            helper = new HtmlHelper();
+            htmlHelper = new HtmlHelper();
+            imageHelper = new ImageHelper();
             browser = new WebBrowser();
             browser.ScriptErrorsSuppressed = true;
-            helper.loginSuccess(id, password);
+            htmlHelper.loginSuccess(id, password);
             cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
+            if (fileDirectory == null)
+            {
+                fileDirectory = Directory.GetCurrentDirectory();
+                fileDirectoryLabel.Text = fileDirectory;
+            }
         }
         private void verticalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -234,7 +241,13 @@ namespace PixivScooper
                     }
                     break;
             }
-          
+            foreach (string image in selectedImageList)
+            {
+                string[] parsedTag = image.Split('_');
+                string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
+                byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
+                File.WriteAllBytes(fileDirectory+"\\"+parsedTag[0]+".png", byteImage);
+            }
 
         }
 
@@ -261,6 +274,12 @@ namespace PixivScooper
             FolderBrowserDialog dlg = new FolderBrowserDialog();
             dlg.ShowDialog();
             fileDirectory = dlg.SelectedPath;
+            fileDirectoryLabel.Text = fileDirectory;
+        }
+
+        private void open_directory_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe", string.Format("/open, \"{0}\"", fileDirectory));
         }
     }
 }

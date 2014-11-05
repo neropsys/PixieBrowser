@@ -39,6 +39,8 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.button1 = new System.Windows.Forms.Button();
+            this.fileDirectoryLabel = new System.Windows.Forms.Label();
+            this.open_directory = new System.Windows.Forms.Button();
             this.imageTabControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -84,7 +86,7 @@
             // download_all
             // 
             this.download_all.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.download_all.Location = new System.Drawing.Point(505, 540);
+            this.download_all.Location = new System.Drawing.Point(504, 555);
             this.download_all.Name = "download_all";
             this.download_all.Size = new System.Drawing.Size(93, 23);
             this.download_all.TabIndex = 5;
@@ -95,7 +97,7 @@
             // download_selected
             // 
             this.download_selected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.download_selected.Location = new System.Drawing.Point(370, 540);
+            this.download_selected.Location = new System.Drawing.Point(369, 555);
             this.download_selected.Name = "download_selected";
             this.download_selected.Size = new System.Drawing.Size(129, 23);
             this.download_selected.TabIndex = 6;
@@ -114,7 +116,7 @@
             this.imageTabControl.Location = new System.Drawing.Point(14, 49);
             this.imageTabControl.Name = "imageTabControl";
             this.imageTabControl.SelectedIndex = 0;
-            this.imageTabControl.Size = new System.Drawing.Size(584, 485);
+            this.imageTabControl.Size = new System.Drawing.Size(584, 501);
             this.imageTabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.imageTabControl.TabIndex = 7;
             // 
@@ -124,7 +126,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(576, 459);
+            this.tabPage1.Size = new System.Drawing.Size(576, 475);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Square Image";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -154,7 +156,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(14, 539);
+            this.button1.Location = new System.Drawing.Point(14, 555);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(96, 23);
             this.button1.TabIndex = 8;
@@ -162,11 +164,34 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // fileDirectoryLabel
+            // 
+            this.fileDirectoryLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.fileDirectoryLabel.AutoSize = true;
+            this.fileDirectoryLabel.Location = new System.Drawing.Point(16, 581);
+            this.fileDirectoryLabel.Name = "fileDirectoryLabel";
+            this.fileDirectoryLabel.Size = new System.Drawing.Size(38, 12);
+            this.fileDirectoryLabel.TabIndex = 9;
+            this.fileDirectoryLabel.Text = "label3";
+            // 
+            // open_directory
+            // 
+            this.open_directory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.open_directory.Location = new System.Drawing.Point(116, 555);
+            this.open_directory.Name = "open_directory";
+            this.open_directory.Size = new System.Drawing.Size(97, 23);
+            this.open_directory.TabIndex = 10;
+            this.open_directory.Text = "Open Directory";
+            this.open_directory.UseVisualStyleBackColor = true;
+            this.open_directory.Click += new System.EventHandler(this.open_directory_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(610, 569);
+            this.ClientSize = new System.Drawing.Size(610, 601);
+            this.Controls.Add(this.open_directory);
+            this.Controls.Add(this.fileDirectoryLabel);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.imageTabControl);
             this.Controls.Add(this.download_selected);
@@ -175,7 +200,7 @@
             this.Controls.Add(this.urlButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.urlTextBox);
-            this.MinimumSize = new System.Drawing.Size(324, 380);
+            this.MinimumSize = new System.Drawing.Size(475, 636);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PixieBrowser";
@@ -198,6 +223,8 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label fileDirectoryLabel;
+        private System.Windows.Forms.Button open_directory;
     }
 }
 

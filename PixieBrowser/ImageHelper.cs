@@ -55,7 +55,7 @@ namespace PixivScooper
                 try
                 {
 
-                    Image loadedImage = loadImage(thumbnailUrl, userId);
+                    Image loadedImage = loadThumbnailImage(thumbnailUrl, userId);
 
                     string[] delimiters = new string[] { "/", "_" };
                     string[] parsedUrl = thumbnailUrl.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
@@ -129,7 +129,14 @@ namespace PixivScooper
             }
             return null;
         }
-        Image loadImage(string imageUrl, string userId)
+        public byte[] byteImage(string imgUrl, string imageId)
+        {
+            Image img = loadOriginalImage(imgUrl, imageId);
+            ImageConverter converter = new ImageConverter();
+            byte[] image = (byte[])converter.ConvertTo(img, typeof(byte[]));
+            return image;
+        }
+        Image loadThumbnailImage(string imageUrl, string userId)
         {
             try
             {

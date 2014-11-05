@@ -206,11 +206,7 @@ namespace PixivScooper
             try
             {
                 string url = htmlPageNum(userId, illustType, page);
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-                req.Accept = acceptHeader;
-                req.ContentType = "applicaton/x-www-form-urlencoded";
-                req.KeepAlive = true;
-                req.CookieContainer = cookie;
+                HttpWebRequest req = setupRequest(url, cookie);
 
                 HttpWebResponse res = (HttpWebResponse)req.GetResponse();
 
