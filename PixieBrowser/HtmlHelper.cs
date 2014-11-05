@@ -113,48 +113,6 @@ namespace PixivScooper
             return urlTemplate;
 
         }
-
-        /*public int maxPage(string id, MainForm.IllustType illustType)
-        {
-            string url = illustFilter(id, MainForm.IllustType.Illust);
-
-            WebBrowser browser = new WebBrowser();
-            browser.Navigate(url);
-            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-            int pages = 1;
-            bool maxPageReached = false;
-            string temp;
-            Loading loadingform = new Loading(100, "loading pages..");
-            loadingform.Activate();
-            loadingform.Show();
-            while (!maxPageReached)
-            {
-                loadingform.processValue();
-                temp = "p=" + (pages + 1).ToString();//"href=\""+ "?id=" + id + "&amp;type=illust"+ "&amp;p=" + "2"+"\"";//?id=170890&type=illust&p=13, ?id=170890&amp;type=illust&amp;p=3
-                if (!browser.DocumentText.Contains("pager-container") ||
-                    !browser.DocumentText.Contains("_thumbnail") ||
-                    !browser.DocumentText.Contains("rel=\"next\"")){
-                        loadingform.Close();
-                        return pages;
-                }        
-                if (browser.DocumentText.Contains(temp))
-                {
-                    pages++;                   
-                    continue;
-                }
-                if (browser.DocumentText.Contains("class=\"next\""))
-                {
-                    string nextUrl = illustFilter(id,illustType);
-                    nextUrl += "&type=illust&p=" + pages.ToString();
-                    browser.Navigate(nextUrl);
-                    while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-                    continue;
-                }
-                else maxPageReached = true;
-            }
-            loadingform.Close();
-            return pages;
-        }*/
         private HttpWebRequest setupRequest(string url, CookieContainer cookie)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -169,12 +127,8 @@ namespace PixivScooper
             string url = illustFilter(id, illustType);
             bool maxPageReached = false;
             int pages = 1;
-            HttpWebRequest request = setupRequest(url, cookie);
-            Loading loadingForm = new Loading(100, "loading pages...");
-            loadingForm.Activate();
-            loadingForm.Show();
+            HttpWebRequest request = setupRequest(url, cookie);  
             string temp; 
-            loadingForm.processValue();
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
             string result = sr.ReadToEnd();
@@ -186,7 +140,6 @@ namespace PixivScooper
                     !result.Contains("_thumbnail") ||
                     !result.Contains("rel=\"next\""))
                 {
-                    loadingForm.Close();
                     return pages;
                 }
                 if (result.Contains(temp))
@@ -207,7 +160,6 @@ namespace PixivScooper
                 else
                     maxPageReached = true;
             }
-            loadingForm.Close();
             return pages;
         }
         public string getImageUrl(string html)
