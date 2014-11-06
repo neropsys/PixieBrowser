@@ -92,6 +92,12 @@
     <Compile Include="ImagePreview.Designer.cs">
       <DependentUpon>ImagePreview.cs</DependentUpon>
     </Compile>
+    <Compile Include="MangaPreview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MangaPreview.Designer.cs">
+      <DependentUpon>MangaPreview.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ImagePreview.resx">

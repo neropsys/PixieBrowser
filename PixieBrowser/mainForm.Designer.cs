@@ -200,7 +200,7 @@
             this.illustFilter.Name = "illustFilter";
             this.illustFilter.Size = new System.Drawing.Size(121, 20);
             this.illustFilter.TabIndex = 11;
-            this.illustFilter.Text = "All";
+            this.illustFilter.TextChanged += new System.EventHandler(this.illustFilter_TextChanged);
             // 
             // MainForm
             // 

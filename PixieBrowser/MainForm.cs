@@ -140,6 +140,42 @@ namespace PixieBrowser
             verticalImageTag.Clear();
             selectedImageList.Clear();
         }
+        private void loadImageByFilter(IllustType illust)
+        {
+            if (!htmlHelper.isThereImage(profileId, illust, cookie)) return;
+            int pages = htmlHelper.maxPage(profileId, illust, cookie);
+            int approxImage = 20 * pages;
+
+            loadingForm = new Loading(approxImage, "loading thumbnails..");
+            loadingForm.Show();
+            if (pages == 1)
+            {
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, 1, cookie);
+                imageHelper.loadThumbnailsPerPage(document, profileId);
+            }
+            else
+            {
+                Parallel.For(1, pages, (i) =>
+                {
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, i, cookie);
+                    imageHelper.loadThumbnailsPerPage(document, profileId);
+
+                });
+            }
+            Task[] loadImageTask = new Task[] {
+                Task.Factory.StartNew(()=>{
+                    imageHelper.loadImageList(squareImages, squareImageView);
+                }),
+                Task.Factory.StartNew(()=>{
+                    imageHelper.loadImageList(horizontalImages, horizontalImageView);
+                }),
+                Task.Factory.StartNew(()=>{
+                    imageHelper.loadImageList(verticalImages, verticalImageView);
+                })};
+
+            Task.WaitAll(loadImageTask);
+            loadingForm.Close();
+        }
         private void urlButton_Click(object sender, EventArgs e)
         {
             HtmlHelper htmlHelper = new HtmlHelper();
@@ -155,38 +191,7 @@ namespace PixieBrowser
                 return;
             }
 
-            int pages = htmlHelper.maxPage(profileId, IllustType.Illust, cookie);
-            int approxImage = 20 * pages;
-
-            loadingForm = new Loading(approxImage, "loading thumbnails..");
-            loadingForm.Show();
-            if (pages == 1)
-            {
-                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, 1, cookie);
-                imageHelper.loadThumbnailsPerPage(document, profileId);
-            }
-            else
-            {
-                Parallel.For(1, pages, (i) =>
-                {
-                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, IllustType.Illust, i, cookie);
-                    imageHelper.loadThumbnailsPerPage(document, profileId);
-
-                });
-            }
-            Task[] loadImageTask= new Task[] {
-                Task.Factory.StartNew(()=>{
-                    imageHelper.loadImageList(squareImages, squareImageView);
-                }),
-                Task.Factory.StartNew(()=>{
-                    imageHelper.loadImageList(horizontalImages, horizontalImageView);
-                }),
-                Task.Factory.StartNew(()=>{
-                    imageHelper.loadImageList(verticalImages, verticalImageView);
-                })};
-            
-            Task.WaitAll(loadImageTask);
-            loadingForm.Close();
+            loadImageByFilter(IllustType.All);
             urlButton.Enabled = true;
         }
         private ListView setupViewProperty(string viewName)
@@ -307,6 +312,27 @@ namespace PixieBrowser
         private void open_directory_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("explorer.exe", string.Format("/open, \"{0}\"", fileDirectory));
+        }
+
+        private void illustFilter_TextChanged(object sender, EventArgs e)
+        {
+            clearAll();
+            switch (illustFilter.SelectedIndex)
+            {
+                case 0:
+                    loadImageByFilter(IllustType.All);
+                    break;
+                case 1:
+                    loadImageByFilter(IllustType.Illust);
+                    break;
+                case 2:
+                    loadImageByFilter(IllustType.Manga);
+                    break;
+                case 3:
+                    loadImageByFilter(IllustType.Ugoira);
+                    break;
+
+            }
         }
     }
 }

@@ -51,17 +51,19 @@ namespace PixieBrowser
 
 
             return Program.isLoggedIn;
-        }      
-        public void navigateByPage(string id, MainForm.IllustType illustType, int pagenum, WebBrowser browser)
-        {
-            string illustPage = illustFilter(id, illustType);
-            illustPage += "&p=" + pagenum.ToString();
-            browser.Navigate(illustPage);
-            while (browser.ReadyState != WebBrowserReadyState.Complete)
-                Application.DoEvents();
-          
-
         }
+        public bool isThereImage(string profileId, MainForm.IllustType illustType, CookieContainer cookie)
+        {
+            HttpWebRequest request = setupRequest(illustFilter(profileId, illustType), cookie);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
+            {
+                string result = reader.ReadToEnd();
+                if (result.Contains("li class=\"image-item\"")) return true;
+                else return false;
+            }
+        }
+       
         private string htmlPageNum(string id, MainForm.IllustType illustType, int pagenum)
         {
             string illustPage = illustFilter(id, illustType);
@@ -162,7 +164,7 @@ namespace PixieBrowser
             HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
             document.LoadHtml(html);
             if (document.DocumentNode.SelectNodes("//body") == null)
-                MessageBox.Show("No image has been found. Try restarting application :)");
+                return null;
             HtmlNode node = document.DocumentNode.SelectNodes("//body")[0];
 
             string url = Regex.Match(html, "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
@@ -235,8 +237,8 @@ namespace PixieBrowser
 
                 StreamReader reader = new StreamReader(requester.GetResponse().GetResponseStream(), Encoding.UTF8);
                 string html = reader.ReadToEnd();
-
-                return getImageUrl(html);
+                string imageUrl = getImageUrl(html);
+                return imageUrl;
             }
             catch (WebException e)
             {
