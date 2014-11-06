@@ -1,6 +1,7 @@
 PixieBrowser
 ===============
-current version 0.1
+
+version 1.0
 
 Application for downloading illustrations from Pixiv user profile.
 
@@ -8,10 +9,16 @@ Currently supports thumbnail previews as well as viewing in original size.
 
 Provides seperate thumbnail size for different image ratio(square, vertical, horizontal)
 
-It **Will** support downloading selected images as well as downloading all of them.
+Now supports downloading selected images as well as downloading all of them.
 
 
 *This application is still in development*
+
+Next update
+==============
+Will support viewing multiple images("Manga" mode) and list of illustration
+
+And download each of the list in seperate folder.
 
 
 Requirements
