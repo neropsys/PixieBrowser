@@ -61,17 +61,17 @@ namespace PixieBrowser
                     string[] parsedUrl = thumbnailUrl.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
                     string imageId = parsedUrl[10];
-                    string isSpecialType = "_0";
+                    string isSpecial = "_0";
 
                     if (parsedUrl[2].Equals("c"))
                     {
                         imageId = parsedUrl[12];
                         //URL for group of Illustrations. Must be processed seperately in the future
-                         isSpecialType = "_1";
+                         isSpecial = "_1";
 
                     }
 
-                    string tag = imageId + isSpecialType;
+                    string tag = imageId + isSpecial;
                     Debug.WriteLine("image tag {0}", tag); 
 
                     lock (locker)

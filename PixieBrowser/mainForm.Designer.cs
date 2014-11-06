@@ -192,7 +192,6 @@
             this.illustFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.illustFilter.FormattingEnabled = true;
             this.illustFilter.Items.AddRange(new object[] {
-            "All",
             "Illust",
             "Manga",
             "Ugoira"});

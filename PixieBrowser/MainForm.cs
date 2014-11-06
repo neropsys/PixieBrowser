@@ -27,7 +27,7 @@ namespace PixieBrowser
         static ImageList squareImages;
         static ImageList horizontalImages;
         static ImageList verticalImages;
-        public static List<string> squareImageTag;//format of tag : imageId(00000)/isSpecial(_0/_1)/imageType(_H, _V, _S)
+        public static List<string> squareImageTag;//format of tag : imageId(00000)/isGroup(_0/_1)/imageType(_H, _V, _S)
         public static List<string> horizontalImageTag;
         public static List<string> verticalImageTag;
         public static List<string> selectedImageList;
@@ -62,9 +62,9 @@ namespace PixieBrowser
             horizontalImageView = setupViewProperty("wideImageView");
             verticalImageView = setupViewProperty("verticalImageView");
 
-            squareImageView.MouseDoubleClick += squareImageView_MouseDoubleClick;
-            horizontalImageView.MouseDoubleClick += horizontalImageView_MouseDoubleClick;
-            verticalImageView.MouseDoubleClick += verticalImageView_MouseDoubleClick;
+            squareImageView.MouseDoubleClick += MouseDoubleClick;
+            horizontalImageView.MouseDoubleClick += MouseDoubleClick;
+            verticalImageView.MouseDoubleClick += MouseDoubleClick;
 
             tabPage1.Controls.Add(squareImageView);
             tabPage2.Controls.Add(horizontalImageView);
@@ -85,48 +85,42 @@ namespace PixieBrowser
                 fileDirectoryLabel.Text = fileDirectory;
             }
         }
-        private void verticalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            foreach (ListViewItem item in verticalImageView.SelectedItems)
+            switch (imageTabControl.SelectedIndex)
             {
-                int imgIndex = item.ImageIndex;
-                if (imgIndex >= 0 && imgIndex < verticalImages.Images.Count)
-                {
-                    ImagePreview previewForm = new ImagePreview(verticalImageTag[imgIndex]);
-                    previewForm.Show();
-                }
+                case 0:
+                    previewImage(squareImageView, squareImageTag, squareImages);
+                    break;
+                case 1:
+                    previewImage(horizontalImageView, horizontalImageTag, horizontalImages);
+                    break;
+                case 2:
+                    previewImage(verticalImageView, verticalImageTag, verticalImages);
+                    break;
             }
 
         }
-
-        void horizontalImageView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void previewImage(ListView currentView, List<string> imageTag, ImageList imageList)
         {
-            foreach (ListViewItem item in horizontalImageView.SelectedItems)
+            foreach (ListViewItem item in currentView.SelectedItems)
             {
                 int imgIndex = item.ImageIndex;
-                if (imgIndex >= 0 && imgIndex < horizontalImages.Images.Count)
+                if (imgIndex >= 0 && imgIndex < imageList.Images.Count)
                 {
-                    ImagePreview previewForm = new ImagePreview(horizontalImageTag[imgIndex]);
-                    previewForm.Show();
+                    string[] parsedTag = imageTag[imgIndex].Split('_');
+                    if (parsedTag[1] == "0")
+                    {
+                        ImagePreview previewForm = new ImagePreview(imageTag[imgIndex]);
+                        previewForm.Show();
+                    }
+                    else
+                    {
+                        //display preview using MangaPreview[only applied on list of illust. not illusts on manga filter ]
+                    }
                 }
             }
         }
-
-        void squareImageView_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            foreach (ListViewItem item in squareImageView.SelectedItems)
-            {
-                int imgIndex = item.ImageIndex;
-                if (imgIndex >= 0 && imgIndex < squareImages.Images.Count)
-                {
-                    ImagePreview previewForm = new ImagePreview(squareImageTag[imgIndex]);
-                    previewForm.Show();
-                }
-            }
-        }
-
-        
-
         private void clearAll()
         {
             squareImageView.Clear();
@@ -191,7 +185,7 @@ namespace PixieBrowser
                 return;
             }
 
-            loadImageByFilter(IllustType.All);
+            loadImageByFilter(IllustType.Illust);
             urlButton.Enabled = true;
         }
         private ListView setupViewProperty(string viewName)
@@ -282,11 +276,6 @@ namespace PixieBrowser
             selectedImageList.Clear();
 
         }
-
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
         public static ImageList getSquareImageList() { return squareImages; }
         public static ImageList getHorizontalImageList() { return horizontalImages; }
         public static ImageList getVerticalImageList() { return verticalImages; }
@@ -320,15 +309,12 @@ namespace PixieBrowser
             switch (illustFilter.SelectedIndex)
             {
                 case 0:
-                    loadImageByFilter(IllustType.All);
-                    break;
-                case 1:
                     loadImageByFilter(IllustType.Illust);
                     break;
-                case 2:
+                case 1:
                     loadImageByFilter(IllustType.Manga);
                     break;
-                case 3:
+                case 2:
                     loadImageByFilter(IllustType.Ugoira);
                     break;
 
