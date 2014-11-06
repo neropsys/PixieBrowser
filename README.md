@@ -31,4 +31,4 @@ Requires .Net Framework 4.0
 UI Preview
 ==============
 
-![alt tag](https://github.com/neropsys/PixieBrowser/blob/master/K-86.png)
+![alt tag](https://raw.githubusercontent.com/neropsys/PixieBrowser/master/K-86.png)
