@@ -45,7 +45,7 @@ namespace PixieBrowser
         public MainForm()
         {
             InitializeComponent();
-
+            if (!Program.isLoggedIn) Application.Exit();
             squareImages = new ImageList();
             squareImages.ColorDepth = ColorDepth.Depth32Bit;
             squareImages.ImageSize = new Size(150, 150);

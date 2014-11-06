@@ -41,6 +41,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.fileDirectoryLabel = new System.Windows.Forms.Label();
             this.open_directory = new System.Windows.Forms.Button();
+            this.illustFilter = new System.Windows.Forms.ComboBox();
             this.imageTabControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -137,7 +138,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(576, 459);
+            this.tabPage2.Size = new System.Drawing.Size(576, 475);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Wide Image";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -148,7 +149,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(576, 459);
+            this.tabPage3.Size = new System.Drawing.Size(576, 475);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Vertical Image";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -185,11 +186,28 @@
             this.open_directory.UseVisualStyleBackColor = true;
             this.open_directory.Click += new System.EventHandler(this.open_directory_Click);
             // 
+            // illustFilter
+            // 
+            this.illustFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.illustFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.illustFilter.FormattingEnabled = true;
+            this.illustFilter.Items.AddRange(new object[] {
+            "All",
+            "Illust",
+            "Manga",
+            "Ugoira"});
+            this.illustFilter.Location = new System.Drawing.Point(477, 34);
+            this.illustFilter.Name = "illustFilter";
+            this.illustFilter.Size = new System.Drawing.Size(121, 20);
+            this.illustFilter.TabIndex = 11;
+            this.illustFilter.Text = "All";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(610, 601);
+            this.Controls.Add(this.illustFilter);
             this.Controls.Add(this.open_directory);
             this.Controls.Add(this.fileDirectoryLabel);
             this.Controls.Add(this.button1);
@@ -200,6 +218,7 @@
             this.Controls.Add(this.urlButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.urlTextBox);
+            this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(475, 636);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -225,6 +244,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label fileDirectoryLabel;
         private System.Windows.Forms.Button open_directory;
+        private System.Windows.Forms.ComboBox illustFilter;
     }
 }
 

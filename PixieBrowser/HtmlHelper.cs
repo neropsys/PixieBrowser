@@ -14,7 +14,6 @@ namespace PixieBrowser
     {
         private const Int32 InternetCookieHttponly = 0x2000;
         private const string acceptHeader = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
-        bool isloggedIn = false;
 
         [DllImport("wininet.dll", SetLastError = true)]
         private static extern bool InternetGetCookieEx(
@@ -36,17 +35,22 @@ namespace PixieBrowser
             browser.ScriptErrorsSuppressed = true;
             browser.Navigate("www.pixiv.net/login.php?");
             while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+            if (!browser.DocumentText.Contains("pixiv_id"))
+            {
+                Program.isLoggedIn = true;
+                return Program.isLoggedIn;
+            }
             browser.Document.GetElementById("pixiv_id").InnerText = id;
             browser.Document.GetElementById("pass").InnerText = password;
             browser.Document.GetElementById("login_submit").InvokeMember("click");
             while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
             if (browser.DocumentText.Contains("not-logged-in"))
-                isloggedIn = false;
+                Program.isLoggedIn = false;
             else
-                isloggedIn = true;
+                Program.isLoggedIn = true;
 
 
-            return isloggedIn;
+            return Program.isLoggedIn;
         }      
         public void navigateByPage(string id, MainForm.IllustType illustType, int pagenum, WebBrowser browser)
         {
