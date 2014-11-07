@@ -54,7 +54,7 @@ namespace PixieBrowser
         }
         public bool isThereImage(string profileId, MainForm.IllustType illustType, CookieContainer cookie)
         {
-            HttpWebRequest request = setupRequest(illustFilter(profileId, illustType), cookie);
+            HttpWebRequest request = setupRequest(illustFilter(profileId, illustType));
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
             {
@@ -110,13 +110,13 @@ namespace PixieBrowser
             return urlTemplate;
 
         }
-        private HttpWebRequest setupRequest(string url, CookieContainer cookie)
+        private HttpWebRequest setupRequest(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Accept = acceptHeader;
             request.ContentType = "applicaton/x-www-form-urlencoded";
             request.KeepAlive = true;
-            request.CookieContainer = cookie;
+            request.CookieContainer = MainForm.cookie;
             return request;
         }
         public int maxPage(string id, MainForm.IllustType illustType, CookieContainer cookie)
@@ -124,7 +124,7 @@ namespace PixieBrowser
             string url = illustFilter(id, illustType);
             bool maxPageReached = false;
             int pages = 1;
-            HttpWebRequest request = setupRequest(url, cookie);  
+            HttpWebRequest request = setupRequest(url);  
             string temp; 
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
@@ -148,7 +148,7 @@ namespace PixieBrowser
                 {
                     string nextUrl = illustFilter(id, illustType);
                     nextUrl += "&type=illust&p=" + pages.ToString();
-                    request = setupRequest(nextUrl, cookie);
+                    request = setupRequest(nextUrl);
                     response = (HttpWebResponse)request.GetResponse();
                     sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
                     result = sr.ReadToEnd();
@@ -198,12 +198,12 @@ namespace PixieBrowser
             }
             return cookies;
         }  
-        public HtmlAgilityPack.HtmlDocument htmlOnPage(string userId, MainForm.IllustType illustType, int page, CookieContainer cookie){
+        public HtmlAgilityPack.HtmlDocument htmlOnPage(string userId, MainForm.IllustType illustType, int page){
 
             try
             {
                 string url = htmlPageNum(userId, illustType, page);
-                HttpWebRequest req = setupRequest(url, cookie);
+                HttpWebRequest req = setupRequest(url);
 
                 HttpWebResponse res = (HttpWebResponse)req.GetResponse();
 
@@ -222,7 +222,31 @@ namespace PixieBrowser
             return null;
             
         }
+        public HtmlAgilityPack.HtmlDocument htmlOnPage(string imgId)
+        {
+            try
+            {
+                string pageUrl = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + imgId;
+                HttpWebRequest request = setupRequest(pageUrl);
+                request.Referer = pageUrl;
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
+                StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
+
+                string html = reader.ReadToEnd();
+
+                HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                document.LoadHtml(html);
+
+                return document;
+            }
+            catch (HtmlWebException e)
+            {
+                MessageBox.Show("Failed to download page", e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Thread.CurrentThread.Abort();
+            }
+            return null;
+        }
         public string BigImageUrl(string imgId)
         {
             string bigImageUrl = "http://www.pixiv.net/member_illust.php?mode=big&illust_id=" + imgId;

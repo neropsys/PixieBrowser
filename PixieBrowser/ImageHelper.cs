@@ -10,6 +10,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 namespace PixieBrowser
 {
 
@@ -41,15 +42,15 @@ namespace PixieBrowser
             else
                 listview.LargeImageList = imageList;
         }
-
-        public void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document, string userId)
+        public void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document, string userId, MainForm.IllustType illustType)
         {
-            if (document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img") == null)
+            if (document.DocumentNode.SelectNodes("//ul[@class='_image-items']//li") == null)
             {
-                MessageBox.Show("No image has been found. Try restarting application :3", "Failed to get images", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("No image has been found :3", "Failed to get images", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Thread.CurrentThread.Abort();
                 
             }
-            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//div[@class='_layout-thumbnail']//img"))
+            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//ul[@class='_image-items']//li"))
             {
                 string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
                 try
@@ -61,19 +62,21 @@ namespace PixieBrowser
                     string[] parsedUrl = thumbnailUrl.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
                     string imageId = parsedUrl[10];
-                    string isSpecial = "_0";
 
                     if (parsedUrl[2].Equals("c"))
                     {
                         imageId = parsedUrl[12];
-                        //URL for group of Illustrations. Must be processed seperately in the future
-                         isSpecial = "_1";
+                        //irregular type of url
 
                     }
 
-                    string tag = imageId + isSpecial;
-                    Debug.WriteLine("image tag {0}", tag); 
-
+                    string tag = imageId;
+                    Debug.WriteLine("image tag {0}", tag);
+                    if (link.InnerHtml.Contains("multiple") || illustType == MainForm.IllustType.Manga)
+                    {
+                        tag += "_M";//multiple image on the page
+                    }
+                    else tag += "_S";//single image
                     lock (locker)
                     {
                         if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
@@ -86,7 +89,7 @@ namespace PixieBrowser
                         {
                             MainForm.getVerticalImageList().Images.Add(loadedImage);
                             tag += "_V";
-                            if(MainForm.verticalImageTag.Count==0)
+                            if (MainForm.verticalImageTag.Count == 0)
                                 Debug.WriteLine("zero index image info {0}", tag);
                             MainForm.verticalImageTag.Add(tag);
                         }
@@ -96,10 +99,10 @@ namespace PixieBrowser
                             tag += "_S";
                             MainForm.squareImageTag.Add(tag);
                         }
-                        if (MainForm.getLoadingForm().InvokeRequired)                           
-                            updateProgress = new CallbackDelegate(()=>MainForm.getLoadingForm().processValue());
+                        if (MainForm.getLoadingForm().InvokeRequired)
+                            updateProgress = new CallbackDelegate(() => MainForm.getLoadingForm().processValue());
                         else
-                           MainForm.getLoadingForm().processValue();
+                            MainForm.getLoadingForm().processValue();
 
                     }
                 }
@@ -107,17 +110,17 @@ namespace PixieBrowser
                 {
                     Debug.WriteLine(e.Message);
                     MessageBox.Show("something went wrong while downloading images :( Bad connection?");
-                    Application.Exit();
+                    Thread.CurrentThread.Abort();
                 }
             }
 
         }
-        public Image loadOriginalImage(string imgUrl, string imageId)
+        public Image loadOriginalImage(string imgUrl, string imgId)
         {
             try
             {
                 HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(imgUrl);
-                requester.Referer = "http://www.pixiv.net/member_illust.php?mode=big&illust_id=" + imageId;
+                requester.Referer = "http://www.pixiv.net/member_illust.php?mode=big&illust_id=" + imgId;
                 requester.CookieContainer = MainForm.cookie;
 
                 Image image = Image.FromStream(requester.GetResponse().GetResponseStream());
@@ -129,12 +132,22 @@ namespace PixieBrowser
             }
             return null;
         }
-        public byte[] byteImage(string imgUrl, string imageId)
+        public byte[] byteImage(string imgUrl, string imgId)
         {
-            Image img = loadOriginalImage(imgUrl, imageId);
+            Image img = loadOriginalImage(imgUrl, imgId);
             ImageConverter converter = new ImageConverter();
             byte[] image = (byte[])converter.ConvertTo(img, typeof(byte[]));
             return image;
+        }
+        public static void loadOriginalImage(string imgId, List<Image> imageList, HtmlAgilityPack.HtmlDocument document)
+        {
+            if (document.DocumentNode.SelectNodes("//section[@class='manga']//img") == null) return;
+            foreach (HtmlNode node in document.DocumentNode.SelectNodes("//section[@class='manga']//img"))//parallel processing required
+            {                                                           //<img.+?src=\"(.+?)\".+?/?>">
+                string imageUrl = Regex.Match(node.OuterHtml.ToString(), "(?<=data-src=)[\"](.+?)[\"]", RegexOptions.IgnoreCase).Groups[1].Value;
+
+
+            }
         }
         Image loadThumbnailImage(string imageUrl, string userId)
         {

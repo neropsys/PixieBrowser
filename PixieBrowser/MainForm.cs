@@ -37,7 +37,6 @@ namespace PixieBrowser
 
         HtmlHelper htmlHelper;
         ImageHelper imageHelper;
-        WebBrowser browser;
         static Loading loadingForm;
         static string fileDirectory;
         string profileId;
@@ -62,9 +61,9 @@ namespace PixieBrowser
             horizontalImageView = setupViewProperty("wideImageView");
             verticalImageView = setupViewProperty("verticalImageView");
 
-            squareImageView.MouseDoubleClick += MouseDoubleClick;
-            horizontalImageView.MouseDoubleClick += MouseDoubleClick;
-            verticalImageView.MouseDoubleClick += MouseDoubleClick;
+            squareImageView.MouseDoubleClick += onMouseDoubleClick;
+            horizontalImageView.MouseDoubleClick += onMouseDoubleClick;
+            verticalImageView.MouseDoubleClick += onMouseDoubleClick;
 
             tabPage1.Controls.Add(squareImageView);
             tabPage2.Controls.Add(horizontalImageView);
@@ -73,19 +72,24 @@ namespace PixieBrowser
             squareImageTag = new List<string>();
             horizontalImageTag = new List<string>();
             verticalImageTag = new List<string>();
+
             selectedImageList = new List<string>();
+
             htmlHelper = new HtmlHelper();
             imageHelper = new ImageHelper();
-            browser = new WebBrowser();
-            browser.ScriptErrorsSuppressed = true;
+
             cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
+
+            disableUI();
+            btn_url.Enabled = true;
+
             if (fileDirectory == null)
             {
                 fileDirectory = Directory.GetCurrentDirectory();
                 fileDirectoryLabel.Text = fileDirectory;
             }
         }
-        private void MouseDoubleClick(object sender, MouseEventArgs e)
+        private void onMouseDoubleClick(object sender, MouseEventArgs e)
         {
             switch (imageTabControl.SelectedIndex)
             {
@@ -109,15 +113,8 @@ namespace PixieBrowser
                 if (imgIndex >= 0 && imgIndex < imageList.Images.Count)
                 {
                     string[] parsedTag = imageTag[imgIndex].Split('_');
-                    if (parsedTag[1] == "0")
-                    {
-                        ImagePreview previewForm = new ImagePreview(imageTag[imgIndex]);
-                        previewForm.Show();
-                    }
-                    else
-                    {
-                        //display preview using MangaPreview[only applied on list of illust. not illusts on manga filter ]
-                    }
+                    ImagePreview previewForm = new ImagePreview(imageTag[imgIndex]);
+                    previewForm.Show();
                 }
             }
         }
@@ -134,6 +131,30 @@ namespace PixieBrowser
             verticalImageTag.Clear();
             selectedImageList.Clear();
         }
+
+        private void disableUI()
+        {
+            btn_url.Enabled = false;
+            btn_dl_all.Enabled = false;
+            btn_dl_selected.Enabled = false;
+            btn_img_directory.Enabled = false;
+            btn_open_directory.Enabled = false;
+            illustFilter.Enabled = false;
+            imageTabControl.Enabled = false;
+
+        }
+        private void enableUI()
+        {
+            btn_url.Enabled = true;
+            btn_dl_all.Enabled = true;
+            btn_dl_selected.Enabled = true;
+            btn_img_directory.Enabled = true;
+            btn_open_directory.Enabled = true;
+            illustFilter.Enabled = true;
+            imageTabControl.Enabled = true;
+        }
+        
+
         private void loadImageByFilter(IllustType illust)
         {
             if (!htmlHelper.isThereImage(profileId, illust, cookie)) return;
@@ -144,15 +165,15 @@ namespace PixieBrowser
             loadingForm.Show();
             if (pages == 1)
             {
-                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, 1, cookie);
-                imageHelper.loadThumbnailsPerPage(document, profileId);
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, 1);
+                imageHelper.loadThumbnailsPerPage(document, profileId, illust);
             }
             else
             {
-                Parallel.For(1, pages, (i) =>
+                Parallel.For(1, pages, (page) =>
                 {
-                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, i, cookie);
-                    imageHelper.loadThumbnailsPerPage(document, profileId);
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, page);
+                    imageHelper.loadThumbnailsPerPage(document, profileId, illust);
 
                 });
             }
@@ -174,24 +195,25 @@ namespace PixieBrowser
         {
             HtmlHelper htmlHelper = new HtmlHelper();
             ImageHelper imageHelper = new ImageHelper();
-            urlButton.Enabled = false;
+            btn_url.Enabled = false;
             clearAll();
             profileId = urlTextBox.Text.ToString();
             
-            if (!htmlHelper.searchById(profileId))
+            if (!htmlHelper.searchById(profileId) || profileId=="")
             {
                 MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
-                urlButton.Enabled = true;
+                btn_url.Enabled = true;
                 return;
             }
 
             loadImageByFilter(IllustType.Illust);
-            urlButton.Enabled = true;
+            enableUI();
         }
         private ListView setupViewProperty(string viewName)
         {
             ListView view = new ListView();
-            view.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            view.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top
+             | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             view.Name = viewName;
@@ -233,8 +255,11 @@ namespace PixieBrowser
             {
                 string[] parsedTag = image.Split('_');
                 string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
-                byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
-                File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + ".png", byteImage);
+                if (imageUrl != null)
+                {
+                    byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
+                    File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + ".png", byteImage);
+                }
             });
             selectedImageList.Clear();
         }

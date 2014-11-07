@@ -30,17 +30,17 @@
         {
             this.urlTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.urlButton = new System.Windows.Forms.Button();
+            this.btn_url = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.download_all = new System.Windows.Forms.Button();
-            this.download_selected = new System.Windows.Forms.Button();
+            this.btn_dl_all = new System.Windows.Forms.Button();
+            this.btn_dl_selected = new System.Windows.Forms.Button();
             this.imageTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btn_img_directory = new System.Windows.Forms.Button();
             this.fileDirectoryLabel = new System.Windows.Forms.Label();
-            this.open_directory = new System.Windows.Forms.Button();
+            this.btn_open_directory = new System.Windows.Forms.Button();
             this.illustFilter = new System.Windows.Forms.ComboBox();
             this.imageTabControl.SuspendLayout();
             this.SuspendLayout();
@@ -64,16 +64,16 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Pixiv ID";
             // 
-            // urlButton
+            // btn_url
             // 
-            this.urlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.urlButton.Location = new System.Drawing.Point(523, 4);
-            this.urlButton.Name = "urlButton";
-            this.urlButton.Size = new System.Drawing.Size(75, 23);
-            this.urlButton.TabIndex = 2;
-            this.urlButton.Text = "Search";
-            this.urlButton.UseVisualStyleBackColor = true;
-            this.urlButton.Click += new System.EventHandler(this.urlButton_Click);
+            this.btn_url.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_url.Location = new System.Drawing.Point(523, 4);
+            this.btn_url.Name = "btn_url";
+            this.btn_url.Size = new System.Drawing.Size(75, 23);
+            this.btn_url.TabIndex = 2;
+            this.btn_url.Text = "Search";
+            this.btn_url.UseVisualStyleBackColor = true;
+            this.btn_url.Click += new System.EventHandler(this.urlButton_Click);
             // 
             // label2
             // 
@@ -84,27 +84,27 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "http://www.pixiv.net/member.php?id=";
             // 
-            // download_all
+            // btn_dl_all
             // 
-            this.download_all.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.download_all.Location = new System.Drawing.Point(504, 555);
-            this.download_all.Name = "download_all";
-            this.download_all.Size = new System.Drawing.Size(93, 23);
-            this.download_all.TabIndex = 5;
-            this.download_all.Text = "Download All";
-            this.download_all.UseVisualStyleBackColor = true;
-            this.download_all.Click += new System.EventHandler(this.downloadAll_Click);
+            this.btn_dl_all.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_dl_all.Location = new System.Drawing.Point(504, 555);
+            this.btn_dl_all.Name = "btn_dl_all";
+            this.btn_dl_all.Size = new System.Drawing.Size(93, 23);
+            this.btn_dl_all.TabIndex = 5;
+            this.btn_dl_all.Text = "Download All";
+            this.btn_dl_all.UseVisualStyleBackColor = true;
+            this.btn_dl_all.Click += new System.EventHandler(this.downloadAll_Click);
             // 
-            // download_selected
+            // btn_dl_selected
             // 
-            this.download_selected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.download_selected.Location = new System.Drawing.Point(369, 555);
-            this.download_selected.Name = "download_selected";
-            this.download_selected.Size = new System.Drawing.Size(129, 23);
-            this.download_selected.TabIndex = 6;
-            this.download_selected.Text = "Download Selected";
-            this.download_selected.UseVisualStyleBackColor = true;
-            this.download_selected.Click += new System.EventHandler(this.downloadSelected_Click);
+            this.btn_dl_selected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_dl_selected.Location = new System.Drawing.Point(369, 555);
+            this.btn_dl_selected.Name = "btn_dl_selected";
+            this.btn_dl_selected.Size = new System.Drawing.Size(129, 23);
+            this.btn_dl_selected.TabIndex = 6;
+            this.btn_dl_selected.Text = "Download Selected";
+            this.btn_dl_selected.UseVisualStyleBackColor = true;
+            this.btn_dl_selected.Click += new System.EventHandler(this.downloadSelected_Click);
             // 
             // imageTabControl
             // 
@@ -154,16 +154,16 @@
             this.tabPage3.Text = "Vertical Image";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btn_img_directory
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(14, 555);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(96, 23);
-            this.button1.TabIndex = 8;
-            this.button1.Text = ".img Directory";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btn_img_directory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn_img_directory.Location = new System.Drawing.Point(14, 555);
+            this.btn_img_directory.Name = "btn_img_directory";
+            this.btn_img_directory.Size = new System.Drawing.Size(96, 23);
+            this.btn_img_directory.TabIndex = 8;
+            this.btn_img_directory.Text = ".img Directory";
+            this.btn_img_directory.UseVisualStyleBackColor = true;
+            this.btn_img_directory.Click += new System.EventHandler(this.button1_Click);
             // 
             // fileDirectoryLabel
             // 
@@ -175,16 +175,16 @@
             this.fileDirectoryLabel.TabIndex = 9;
             this.fileDirectoryLabel.Text = "label3";
             // 
-            // open_directory
+            // btn_open_directory
             // 
-            this.open_directory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.open_directory.Location = new System.Drawing.Point(116, 555);
-            this.open_directory.Name = "open_directory";
-            this.open_directory.Size = new System.Drawing.Size(97, 23);
-            this.open_directory.TabIndex = 10;
-            this.open_directory.Text = "Open Directory";
-            this.open_directory.UseVisualStyleBackColor = true;
-            this.open_directory.Click += new System.EventHandler(this.open_directory_Click);
+            this.btn_open_directory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn_open_directory.Location = new System.Drawing.Point(116, 555);
+            this.btn_open_directory.Name = "btn_open_directory";
+            this.btn_open_directory.Size = new System.Drawing.Size(97, 23);
+            this.btn_open_directory.TabIndex = 10;
+            this.btn_open_directory.Text = "Open Directory";
+            this.btn_open_directory.UseVisualStyleBackColor = true;
+            this.btn_open_directory.Click += new System.EventHandler(this.open_directory_Click);
             // 
             // illustFilter
             // 
@@ -192,13 +192,13 @@
             this.illustFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.illustFilter.FormattingEnabled = true;
             this.illustFilter.Items.AddRange(new object[] {
-            "Illust",
+            "Illustration",
             "Manga",
             "Ugoira"});
             this.illustFilter.Location = new System.Drawing.Point(477, 34);
             this.illustFilter.Name = "illustFilter";
             this.illustFilter.Size = new System.Drawing.Size(121, 20);
-            this.illustFilter.TabIndex = 11;
+            this.illustFilter.Text = "Illustration";
             this.illustFilter.TextChanged += new System.EventHandler(this.illustFilter_TextChanged);
             // 
             // MainForm
@@ -207,14 +207,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(610, 601);
             this.Controls.Add(this.illustFilter);
-            this.Controls.Add(this.open_directory);
+            this.Controls.Add(this.btn_open_directory);
             this.Controls.Add(this.fileDirectoryLabel);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btn_img_directory);
             this.Controls.Add(this.imageTabControl);
-            this.Controls.Add(this.download_selected);
-            this.Controls.Add(this.download_all);
+            this.Controls.Add(this.btn_dl_selected);
+            this.Controls.Add(this.btn_dl_all);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.urlButton);
+            this.Controls.Add(this.btn_url);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.urlTextBox);
             this.KeyPreview = true;
@@ -232,17 +232,17 @@
 
         private System.Windows.Forms.TextBox urlTextBox;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button urlButton;
+        private System.Windows.Forms.Button btn_url;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button download_all;
-        private System.Windows.Forms.Button download_selected;
+        private System.Windows.Forms.Button btn_dl_all;
+        private System.Windows.Forms.Button btn_dl_selected;
         private System.Windows.Forms.TabControl imageTabControl;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btn_img_directory;
         private System.Windows.Forms.Label fileDirectoryLabel;
-        private System.Windows.Forms.Button open_directory;
+        private System.Windows.Forms.Button btn_open_directory;
         private System.Windows.Forms.ComboBox illustFilter;
     }
 }

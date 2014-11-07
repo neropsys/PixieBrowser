@@ -13,15 +13,26 @@ namespace PixieBrowser
 {
     public partial class ImagePreview : Form
     {
+        List<Image> imageBundle;
         public ImagePreview(string imgTag)
         {
             InitializeComponent();
             HtmlHelper htmlHelper = new HtmlHelper();
             ImageHelper imageHelper = new ImageHelper();
             string[] tagBundle = imgTag.Split('_');
-            string bigImgUrl = htmlHelper.BigImageUrl(tagBundle[0]);
-            Image originalImage = imageHelper.loadOriginalImage(bigImgUrl, tagBundle[0]);
-            pictureBox1.Image = originalImage;
+           
+            if (tagBundle[1] == "M") //if there's multiple image on the page
+            {
+                imageBundle = new List<Image>();
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(tagBundle[0]);
+                ImageHelper.loadOriginalImage(tagBundle[0], imageBundle, document);
+            }
+            else
+            {
+                string bigImgUrl = htmlHelper.BigImageUrl(tagBundle[0]);
+                Image originalImage = imageHelper.loadOriginalImage(bigImgUrl, tagBundle[0]);
+                pictureBox1.Image = originalImage;
+            }
 
         }
 
@@ -32,7 +43,7 @@ namespace PixieBrowser
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            pictureBox1_DoubleClick(this, e);
+            //next page
         }
         
     }
