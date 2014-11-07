@@ -14,11 +14,17 @@ Now supports downloading selected images as well as downloading all of them.
 
 *This application is still in development*
 
-Next update
+Next Update
 ==============
 Will support viewing multiple images("Manga" mode) and list of illustration
 
 And download each of the list in seperate folder.
+
+Planned Features
+================
+Viewing user's bookmarked images and preview all illustrations of the selected illustrator in bookmark tab
+
+Sharing image URL on twitter.
 
 
 Requirements
