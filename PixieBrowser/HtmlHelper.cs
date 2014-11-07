@@ -110,7 +110,7 @@ namespace PixieBrowser
             return urlTemplate;
 
         }
-        private HttpWebRequest setupRequest(string url)
+        public static HttpWebRequest setupRequest(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Accept = acceptHeader;

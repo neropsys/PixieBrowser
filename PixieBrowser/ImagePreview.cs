@@ -14,6 +14,7 @@ namespace PixieBrowser
     public partial class ImagePreview : Form
     {
         List<Image> imageBundle;
+        int currentPage = 0;
         public ImagePreview(string imgTag)
         {
             InitializeComponent();
@@ -26,6 +27,7 @@ namespace PixieBrowser
                 imageBundle = new List<Image>();
                 HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(tagBundle[0]);
                 ImageHelper.loadOriginalImage(tagBundle[0], imageBundle, document);
+                pictureBox1.Image = imageBundle[currentPage];
             }
             else
             {
@@ -38,12 +40,16 @@ namespace PixieBrowser
 
         private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-            Close();
+            //Close();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            //next page
+            if(imageBundle.Count==currentPage){
+                currentPage=0;
+            }            
+            pictureBox1.Image = imageBundle[currentPage];
+            currentPage++;
         }
         
     }
