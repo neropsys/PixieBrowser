@@ -207,6 +207,7 @@ namespace PixieBrowser
             }
 
             loadImageByFilter(IllustType.Illust);
+            illustFilter.SelectedIndex = 0;
             enableUI();
         }
         private ListView setupViewProperty(string viewName)

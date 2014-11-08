@@ -142,13 +142,18 @@ namespace PixieBrowser
         public static void loadOriginalImage(string imgId, List<Image> imageList, HtmlAgilityPack.HtmlDocument document)
         {
             if (document.DocumentNode.SelectNodes("//section[@class='manga']//a") == null) return;
-            foreach (HtmlNode node in document.DocumentNode.SelectNodes("//section[@class='manga']//a"))//parallel processing required
-            {                                                           //<img.+?src=\"(.+?)\".+?/?>">
+
+            IEnumerable<HtmlNode> result = from node in document.DocumentNode.SelectNodes("//section[@class='manga']//a").AsParallel().AsOrdered()
+                                           where node != null
+                                           select node;
+            foreach (var node in result)
+            {
                 string imagePage = "http://www.pixiv.net/" + Regex.Match(node.OuterHtml.ToString(), "(?<=href=)[\"](.+?)[\"]", RegexOptions.IgnoreCase).Groups[1].Value;
                 HttpWebRequest request = HtmlHelper.setupRequest(imagePage);
                 request.Referer = imagePage;
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                using(StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"))){
+                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
+                {
                     string originalImage = Regex.Match(reader.ReadToEnd(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
                     request = HtmlHelper.setupRequest(originalImage);
                     request.Referer = imagePage;
@@ -156,7 +161,6 @@ namespace PixieBrowser
                     imageList.Add(Image.FromStream(response.GetResponseStream()));
 
                 }
-
             }
         }
         Image loadThumbnailImage(string imageUrl, string userId)
