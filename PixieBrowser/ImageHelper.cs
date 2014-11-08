@@ -122,7 +122,7 @@ namespace PixieBrowser
             {
                 HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(imgUrl);
                 requester.Referer = "http://www.pixiv.net/member_illust.php?mode=big&illust_id=" + imgId;
-                requester.CookieContainer = MainForm.cookie;
+                requester.CookieContainer = Program.cookie;
 
                 Image image = Image.FromStream(requester.GetResponse().GetResponseStream());
                 return image;

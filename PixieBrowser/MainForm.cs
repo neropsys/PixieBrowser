@@ -32,7 +32,6 @@ namespace PixieBrowser
         public static List<string> verticalImageTag;
         public static List<string> selectedImageList;
         object locker = new object();
-        public static CookieContainer cookie;
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
         private delegate void ProcessValue();
@@ -80,8 +79,6 @@ namespace PixieBrowser
 
             htmlHelper = new HtmlHelper();
             imageHelper = new ImageHelper();
-
-            cookie = HtmlHelper.GetUriCookieContainer(new Uri("http://www.pixiv.net"));
 
             disableUI();
             btn_url.Enabled = true;
@@ -163,8 +160,8 @@ namespace PixieBrowser
 
         private void loadImageByFilter(IllustType illust)
         {
-            if (!htmlHelper.isThereImage(profileId, illust, cookie)) return;
-            int pages = htmlHelper.maxPage(profileId, illust, cookie);
+            if (!htmlHelper.isThereImage(profileId, illust)) return;
+            int pages = htmlHelper.maxPage(profileId, illust);
             int approxImage = 20 * pages;
 
             loadingForm = new Loading(approxImage, "loading thumbnails..");

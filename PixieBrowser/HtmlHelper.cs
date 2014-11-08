@@ -28,33 +28,55 @@ namespace PixieBrowser
         {
 
         }
-        
+       
         public bool loginSuccess(string id, string password)
         {
-            WebBrowser browser = new WebBrowser();
-            browser.ScriptErrorsSuppressed = true;
-            browser.Navigate("www.pixiv.net/login.php?");
-            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-            if (!browser.DocumentText.Contains("pixiv_id"))
-            {
-                Program.isLoggedIn = true;
-                return Program.isLoggedIn;
+            CookieCollection cookies = new CookieCollection();
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://www.pixiv.net/login.php?");
+            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
+            request.CookieContainer = new CookieContainer();
+            request.ContentType = "applicaton/x-www-form-urlencoded";
+            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36";
+            request.Referer = "https://www.secure.pixiv.net/login.php";
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            cookies = response.Cookies;
+
+           
+
+            HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create("http://www.pixiv.net/login.php?");
+            getRequest.CookieContainer = new CookieContainer();
+            getRequest.CookieContainer.Add(cookies);
+            getRequest.Method = WebRequestMethods.Http.Post;
+            getRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36";
+            getRequest.AllowWriteStreamBuffering = true;
+            getRequest.ProtocolVersion = HttpVersion.Version11;
+            getRequest.AllowAutoRedirect = true;
+            getRequest.ContentType = "application/x-www-form-urlencoded";
+
+            string postData = String.Format("mode=login&pixiv_id={0}&pass={1}&skip=1", id, password);
+            byte[] byteArray = Encoding.ASCII.GetBytes(postData);
+            getRequest.ContentLength = byteArray.Length;
+
+            Stream newStream = getRequest.GetRequestStream();
+            newStream.Write(byteArray, 0, byteArray.Length);
+            newStream.Close();
+            
+            HttpWebResponse getResponse = (HttpWebResponse)getRequest.GetResponse();
+            using (StreamReader reader = new StreamReader(getResponse.GetResponseStream())){
+                string html = reader.ReadToEnd();
+                if (html.Contains("not-logged-in")) return false;
+                else
+                {
+
+                    Program.cookie.Add(getRequest.CookieContainer.GetCookies(new Uri("http://www.pixiv.net/")));
+                    return true;
+                }
+
             }
-            browser.Document.GetElementById("pixiv_id").InnerText = id;
-            browser.Document.GetElementById("pass").InnerText = password;
-            browser.Document.GetElementById("login_submit").InvokeMember("click");
-            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-            browser.Navigate("http://www.pixiv.net/");
-            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-            if (browser.DocumentText.Contains("not-logged-in"))
-                Program.isLoggedIn = false;
-            else
-                Program.isLoggedIn = true;
 
-
-            return Program.isLoggedIn;
         }
-        public bool isThereImage(string profileId, MainForm.IllustType illustType, CookieContainer cookie)
+        public bool isThereImage(string profileId, MainForm.IllustType illustType)
         {
             HttpWebRequest request = setupRequest(illustFilter(profileId, illustType));
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
@@ -115,13 +137,17 @@ namespace PixieBrowser
         public static HttpWebRequest setupRequest(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Accept = acceptHeader;
+            request.Accept = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36";
             request.ContentType = "applicaton/x-www-form-urlencoded";
+            request.CookieContainer = Program.cookie;
             request.KeepAlive = true;
-            request.CookieContainer = MainForm.cookie;
+            request.ProtocolVersion = HttpVersion.Version11;
+            request.AllowWriteStreamBuffering = true;
+            request.UserAgent = acceptHeader;
+            request.Method = WebRequestMethods.Http.Get;
             return request;
         }
-        public int maxPage(string id, MainForm.IllustType illustType, CookieContainer cookie)
+        public int maxPage(string id, MainForm.IllustType illustType)
         {
             string url = illustFilter(id, illustType);
             bool maxPageReached = false;
@@ -174,32 +200,6 @@ namespace PixieBrowser
             return url;
 
         }
-        public static CookieContainer GetUriCookieContainer(Uri uri)
-        {
-            CookieContainer cookies = null; 
-            int datasize = 8192 * 16;
-            StringBuilder cookieData = new StringBuilder(datasize);
-            if (!InternetGetCookieEx(uri.ToString(), null, cookieData, ref datasize, InternetCookieHttponly, IntPtr.Zero))
-            {
-                if (datasize < 0)
-                    return null; 
-                cookieData = new StringBuilder(datasize);
-                if (!InternetGetCookieEx(
-                    uri.ToString(),
-                    null, cookieData,
-                    ref datasize,
-                    InternetCookieHttponly,
-                    IntPtr.Zero))
-                    return null;
-            }
-            if (cookieData.Length > 0)
-            {
-                cookies = new CookieContainer();
-                cookies.SetCookies(uri, cookieData.ToString().Replace(';', ','));
-             
-            }
-            return cookies;
-        }  
         public HtmlAgilityPack.HtmlDocument htmlOnPage(string userId, MainForm.IllustType illustType, int page){
 
             try
@@ -257,7 +257,7 @@ namespace PixieBrowser
             {
                 HttpWebRequest requester = (HttpWebRequest)WebRequest.Create(bigImageUrl);
                 requester.Referer = referer;
-                requester.CookieContainer = MainForm.cookie;
+                requester.CookieContainer = Program.cookie;
                 requester.Accept = acceptHeader;
                 requester.KeepAlive = true;
 

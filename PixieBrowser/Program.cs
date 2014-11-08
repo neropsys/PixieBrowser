@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Windows.Forms;
 namespace PixieBrowser
 {
@@ -11,13 +12,14 @@ namespace PixieBrowser
         public static string id;
         public static string password;
         public static bool isLoggedIn = false;
-
+        public static CookieContainer cookie;
         [STAThread]
         static void Main()
         {
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            cookie = new CookieContainer();
             Application.Run(new Login());
             Application.Run(new MainForm());
            
