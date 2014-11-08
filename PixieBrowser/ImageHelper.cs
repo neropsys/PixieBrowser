@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Drawing.Imaging;
 namespace PixieBrowser
 {
 
@@ -132,19 +133,36 @@ namespace PixieBrowser
             }
             return null;
         }
-        public byte[] byteImage(string imgUrl, string imgId)
+        public byte[] byteImage(string imgUrl, string imgId, ref string imageType)
         {
             Image img = loadOriginalImage(imgUrl, imgId);
+            imageType = ImageType(img);
             ImageConverter converter = new ImageConverter();
             byte[] image = (byte[])converter.ConvertTo(img, typeof(byte[]));
             return image;
         }
-        public static void loadOriginalImage(string imgId, List<Image> imageList, HtmlAgilityPack.HtmlDocument document)
+        public byte[] byteImage(Image image)
         {
-            if (document.DocumentNode.SelectNodes("//section[@class='manga']//a") == null) return;
-
+            ImageConverter converter = new ImageConverter();
+            return (byte[])converter.ConvertTo(image, typeof(byte[]));
+        }
+        public static string ImageType(Image image)
+        {
+            if (ImageFormat.Jpeg.Equals(image.RawFormat))
+                return ".jpg";
+            else if (ImageFormat.Gif.Equals(image.RawFormat))
+                return ".gif";
+            else if (ImageFormat.Png.Equals(image.RawFormat))
+                return ".png";
+            else if (ImageFormat.Bmp.Equals(image.RawFormat))
+                return ".bmp";
+            else return "FileTypeUnknown";
+        }
+        public static List<Image> LoadOriginalImage(string imgId, HtmlAgilityPack.HtmlDocument document)
+        {
+            if (document.DocumentNode.SelectNodes("//section[@class='manga']//a") == null) return  null;
+            List<Image> imageList = new List<Image>();
             IEnumerable<HtmlNode> result = from node in document.DocumentNode.SelectNodes("//section[@class='manga']//a").AsParallel().AsOrdered()
-                                           where node != null
                                            select node;
             foreach (var node in result)
             {
@@ -162,6 +180,7 @@ namespace PixieBrowser
 
                 }
             }
+            return imageList;
         }
         Image loadThumbnailImage(string imageUrl, string userId)
         {

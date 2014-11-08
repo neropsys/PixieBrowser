@@ -24,9 +24,9 @@ namespace PixieBrowser
            
             if (tagBundle[1] == "M") //if there's multiple image on the page
             {
-                imageBundle = new List<Image>();
+                
                 HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(tagBundle[0]);
-                ImageHelper.loadOriginalImage(tagBundle[0], imageBundle, document);
+                imageBundle = ImageHelper.LoadOriginalImage(tagBundle[0], document);
                 pictureBox1.Image = imageBundle[currentPage];
             }
             else
@@ -45,6 +45,7 @@ namespace PixieBrowser
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
+            if (imageBundle == null) return;
             if(imageBundle.Count==currentPage){
                 currentPage=0;
             }            

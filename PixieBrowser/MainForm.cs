@@ -35,6 +35,9 @@ namespace PixieBrowser
         public static CookieContainer cookie;
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
+        private delegate void ProcessValue();
+        ProcessValue updateProgress = new ProcessValue(() => loadingForm.processValue());
+
         HtmlHelper htmlHelper;
         ImageHelper imageHelper;
         static Loading loadingForm;
@@ -120,6 +123,9 @@ namespace PixieBrowser
         }
         private void clearAll()
         {
+            horizontalImages.Images.Clear();
+            verticalImages.Images.Clear();
+            squareImages.Images.Clear();
             squareImageView.Clear();
             verticalImageView.Clear();
             horizontalImageView.Clear();
@@ -252,16 +258,34 @@ namespace PixieBrowser
                     }
                     break;
             }
+            Cursor.Current = Cursors.WaitCursor;
+            disableUI();
             Parallel.ForEach(selectedImageList, image =>
             {
                 string[] parsedTag = image.Split('_');
                 string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
-                if (imageUrl != null)
+                if (parsedTag[1] == "M")//multiple image
                 {
-                    byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
-                    File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + ".png", byteImage);
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(parsedTag[0]);
+                    List<Image> imageList = ImageHelper.LoadOriginalImage(parsedTag[0], document);
+                    for (int index = 0; index < imageList.Count; index++)
+                    {
+                        byte[] imageNode = imageHelper.byteImage(imageList[index]);
+                        string directory = fileDirectory + "\\" + parsedTag[0] + "\\";
+                        Directory.CreateDirectory(directory);
+                        File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + "\\" + index.ToString() + ImageHelper.ImageType(imageList[index]), imageNode);
+                    }
                 }
+                else
+                {
+                    string imageType = "";
+                    byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0], ref imageType);
+                    File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + imageType, byteImage);
+                }
+
             });
+            enableUI();
+            Cursor.Current = Cursors.Default;
             selectedImageList.Clear();
         }
         private void downloadSelected_Click(object sender, EventArgs e)
@@ -292,13 +316,33 @@ namespace PixieBrowser
                     }
                     break;
             }
+            Cursor.Current = Cursors.WaitCursor;
+            disableUI();
             Parallel.ForEach(selectedImageList, image => { 
                 string[] parsedTag = image.Split('_');
                 string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
-                byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0]);
-                File.WriteAllBytes(fileDirectory+"\\"+parsedTag[0]+".png", byteImage);
+                if (parsedTag[1] == "M")//multiple image
+                {
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(parsedTag[0]);
+                    List<Image> imageList = ImageHelper.LoadOriginalImage(parsedTag[0], document);
+                    for (int index = 0; index < imageList.Count; index++)
+                    {
+                        byte[] imageNode = imageHelper.byteImage(imageList[index]);
+                        string directory = fileDirectory + "\\" + parsedTag[0] + "\\";
+                        Directory.CreateDirectory(directory);
+                        File.WriteAllBytes(fileDirectory+"\\"+parsedTag[0]+"\\"+index.ToString()+ImageHelper.ImageType(imageList[index]), imageNode);
+                    }
+                }
+                else
+                {
+                    string imageType="";
+                    byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0],ref imageType);
+                    File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + imageType, byteImage);
+                }
+
             });
-            
+            enableUI();
+            Cursor.Current = Cursors.Default;
             selectedImageList.Clear();
 
         }

@@ -44,6 +44,8 @@ namespace PixieBrowser
             browser.Document.GetElementById("pass").InnerText = password;
             browser.Document.GetElementById("login_submit").InvokeMember("click");
             while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+            browser.Navigate("http://www.pixiv.net/");
+            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
             if (browser.DocumentText.Contains("not-logged-in"))
                 Program.isLoggedIn = false;
             else
