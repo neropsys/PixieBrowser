@@ -21,7 +21,8 @@ namespace PixieBrowser
             Application.SetCompatibleTextRenderingDefault(false);
             cookie = new CookieContainer();
             Application.Run(new Login());
-            Application.Run(new MainForm());
+            if(isLoggedIn)
+                Application.Run(new MainForm());
            
         }
         
