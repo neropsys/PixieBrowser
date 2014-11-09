@@ -91,6 +91,7 @@ namespace PixieBrowser
         }
         private void onMouseDoubleClick(object sender, MouseEventArgs e)
         {
+            Cursor.Current = Cursors.WaitCursor;
             switch (imageTabControl.SelectedIndex)
             {
                 case 0:
@@ -103,6 +104,7 @@ namespace PixieBrowser
                     previewImage(verticalImageView, verticalImageTag, verticalImages);
                     break;
             }
+            Cursor.Current = Cursors.Default;
 
         }
         private void previewImage(ListView currentView, List<string> imageTag, ImageList imageList)
@@ -168,14 +170,14 @@ namespace PixieBrowser
             loadingForm.Show();
             if (pages == 1)
             {
-                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, 1);
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnEachPage(profileId, illust, 1);
                 imageHelper.loadThumbnailsPerPage(document, profileId, illust);
             }
             else
             {
                 Parallel.For(1, pages, (page) =>
                 {
-                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(profileId, illust, page);
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnEachPage(profileId, illust, page);
                     imageHelper.loadThumbnailsPerPage(document, profileId, illust);
 
                 });
@@ -255,35 +257,7 @@ namespace PixieBrowser
                     }
                     break;
             }
-            Cursor.Current = Cursors.WaitCursor;
-            disableUI();
-            Parallel.ForEach(selectedImageList, image =>
-            {
-                string[] parsedTag = image.Split('_');
-                string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
-                if (parsedTag[1] == "M")//multiple image
-                {
-                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(parsedTag[0]);
-                    List<Image> imageList = ImageHelper.LoadOriginalImage(parsedTag[0], document);
-                    for (int index = 0; index < imageList.Count; index++)
-                    {
-                        byte[] imageNode = imageHelper.byteImage(imageList[index]);
-                        string directory = fileDirectory + "\\" + parsedTag[0] + "\\";
-                        Directory.CreateDirectory(directory);
-                        File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + "\\" + index.ToString() + ImageHelper.ImageType(imageList[index]), imageNode);
-                    }
-                }
-                else
-                {
-                    string imageType = "";
-                    byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0], ref imageType);
-                    File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + imageType, byteImage);
-                }
-
-            });
-            enableUI();
-            Cursor.Current = Cursors.Default;
-            selectedImageList.Clear();
+            downloadImage();
         }
         private void downloadSelected_Click(object sender, EventArgs e)
          {
@@ -313,6 +287,11 @@ namespace PixieBrowser
                     }
                     break;
             }
+            downloadImage();
+
+        }
+        private void downloadImage()
+        {
             Cursor.Current = Cursors.WaitCursor;
             disableUI();
             Parallel.ForEach(selectedImageList, image => { 
@@ -341,7 +320,6 @@ namespace PixieBrowser
             enableUI();
             Cursor.Current = Cursors.Default;
             selectedImageList.Clear();
-
         }
         public static ImageList getSquareImageList() { return squareImages; }
         public static ImageList getHorizontalImageList() { return horizontalImages; }

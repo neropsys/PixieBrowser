@@ -12,17 +12,7 @@ namespace PixieBrowser
 {
     class HtmlHelper
     {
-        private const Int32 InternetCookieHttponly = 0x2000;
         private const string acceptHeader = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; .NET CLR 3.0.04506.590; .NET CLR 3.5.20706; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
-
-        [DllImport("wininet.dll", SetLastError = true)]
-        private static extern bool InternetGetCookieEx(
-            string url,
-            string cookieName,
-            StringBuilder cookieData,
-            ref int size,
-            Int32 dwFlags,
-            IntPtr lpReserved);
 
         public HtmlHelper()
         {
@@ -200,7 +190,7 @@ namespace PixieBrowser
             return url;
 
         }
-        public HtmlAgilityPack.HtmlDocument htmlOnPage(string userId, MainForm.IllustType illustType, int page){
+        public HtmlAgilityPack.HtmlDocument htmlOnEachPage(string userId, MainForm.IllustType illustType, int page){
 
             try
             {

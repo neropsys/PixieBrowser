@@ -30,7 +30,6 @@ namespace PixieBrowser
             loginButton.Enabled = false;
             id = pixivId.Text.ToString();
             password = pixivPasswd.Text.ToString();
-            // if any one of the input is null, do not create file and return;
             if (id == "" || password == "") {
                 loginButton.Enabled = true;
                 return; 

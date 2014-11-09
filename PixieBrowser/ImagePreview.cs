@@ -28,6 +28,7 @@ namespace PixieBrowser
                 HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(tagBundle[0]);
                 imageBundle = ImageHelper.LoadOriginalImage(tagBundle[0], document);
                 pictureBox1.Image = imageBundle[currentPage];
+                this.Text = "ImagePreview - " + currentPage + "/" + (imageBundle.Count - 1);
             }
             else
             {
@@ -50,6 +51,7 @@ namespace PixieBrowser
                 currentPage=0;
             }            
             pictureBox1.Image = imageBundle[currentPage];
+            this.Text = "ImagePreview - " + currentPage + "/" + (imageBundle.Count-1);
             currentPage++;
         }
         
