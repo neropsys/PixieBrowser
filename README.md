@@ -30,6 +30,8 @@ Adding UI on Image Preview form and additional form to view multiple image at on
 
 Save gif images(Ugoira)
 
+Browsing images without logging in. Some restrictions could be applied.
+
 
 Requirements
 ==============
