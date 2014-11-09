@@ -7,6 +7,8 @@ Application for downloading illustrations from Pixiv user profile.
 
 *This application is still in development*
 
+[Download] (https://github.com/neropsys/PixieBrowser/releases/download/v1.5/PixieBrowser.zip)
+
 Features
 ================
 Thumbnail previews as well as viewing in original size.
@@ -29,6 +31,8 @@ Planned Features
 Adding UI on Image Preview form and additional form to view multiple image at once on Manga mode.
 
 Save gif images(Ugoira)
+
+Browsing images without logging in. Some restrictions could be applied.
 
 
 Requirements
