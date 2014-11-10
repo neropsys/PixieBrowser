@@ -167,13 +167,13 @@ namespace PixieBrowser
             foreach (var node in result)
             {
                 string imagePage = "http://www.pixiv.net/" + Regex.Match(node.OuterHtml.ToString(), "(?<=href=)[\"](.+?)[\"]", RegexOptions.IgnoreCase).Groups[1].Value;
-                HttpWebRequest request = HtmlHelper.setupRequest(imagePage);
+                HttpWebRequest request = HtmlHelper.SetupRequest(imagePage);
                 request.Referer = imagePage;
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
                 {
                     string originalImage = Regex.Match(reader.ReadToEnd(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
-                    request = HtmlHelper.setupRequest(originalImage);
+                    request = HtmlHelper.SetupRequest(originalImage);
                     request.Referer = imagePage;
                     response = (HttpWebResponse)request.GetResponse();
                     imageList.Add(Image.FromStream(response.GetResponseStream()));

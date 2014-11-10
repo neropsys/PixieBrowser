@@ -203,16 +203,20 @@ namespace PixieBrowser
             btn_url.Enabled = false;
             clearAll();
             profileId = urlTextBox.Text.ToString();
-            
-            if (!htmlHelper.searchById(profileId) || profileId=="")
+            string id = htmlHelper.searchById(profileId);
+            if (id == null|| profileId=="")
             {
                 MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
                 btn_url.Enabled = true;
                 return;
             }
-
+            if (illustFilter.SelectedIndex != 0)
+            {
+                illustFilter.SelectedIndex = 0;
+                return;
+            } 
             loadImageByFilter(IllustType.Illust);
-            illustFilter.SelectedIndex = 0;
+            
             enableUI();
         }
         private ListView setupViewProperty(string viewName)

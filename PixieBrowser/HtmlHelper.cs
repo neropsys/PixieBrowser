@@ -68,7 +68,7 @@ namespace PixieBrowser
         }
         public bool isThereImage(string profileId, MainForm.IllustType illustType)
         {
-            HttpWebRequest request = setupRequest(illustFilter(profileId, illustType));
+            HttpWebRequest request = SetupRequest(illustFilter(profileId, illustType));
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
             {
@@ -84,17 +84,21 @@ namespace PixieBrowser
             illustPage += "&p=" + pagenum.ToString();
             return illustPage;
         }
-        public bool searchById(string profileId)//Only looks for Illust, not manga, ugoira, novel
+        public string searchById(string profileId)//Only looks for Illust, not manga, ugoira, novel
         {
-            WebBrowser browser = new WebBrowser();
-            browser.ScriptErrorsSuppressed = true;
             string url = "http://www.pixiv.net/member_illust.php?type=illust&id=" + profileId;
-            //subject to change if user wants to download other than images
-            browser.Navigate(url);
-            while (browser.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-            
-            if (browser.DocumentText.Contains("errorArea") || browser.DocumentText.Contains("one_column_body")) return false;
-            else return true;
+            HttpWebRequest request = SetupRequest(url);
+            using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream(), Encoding.GetEncoding("UTF-8")))
+            {
+                string html = reader.ReadToEnd();
+                if (html.Contains("errorArea") || html.Contains("one_column_body")) return null;
+                else
+                {
+                    HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                    document.LoadHtml(html);
+                    return document.DocumentNode.SelectNodes("//a[@class='user-link']//h1")[0].InnerText;;
+                }
+            }
         }
         private string illustFilter(string id, MainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
         {
@@ -124,7 +128,7 @@ namespace PixieBrowser
             return urlTemplate;
 
         }
-        public static HttpWebRequest setupRequest(string url)
+        public static HttpWebRequest SetupRequest(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Accept = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36";
@@ -142,7 +146,7 @@ namespace PixieBrowser
             string url = illustFilter(id, illustType);
             bool maxPageReached = false;
             int pages = 1;
-            HttpWebRequest request = setupRequest(url);  
+            HttpWebRequest request = SetupRequest(url);  
             string temp; 
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
@@ -166,7 +170,7 @@ namespace PixieBrowser
                 {
                     string nextUrl = illustFilter(id, illustType);
                     nextUrl += "&type=illust&p=" + pages.ToString();
-                    request = setupRequest(nextUrl);
+                    request = SetupRequest(nextUrl);
                     response = (HttpWebResponse)request.GetResponse();
                     sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
                     result = sr.ReadToEnd();
@@ -195,7 +199,7 @@ namespace PixieBrowser
             try
             {
                 string url = htmlPageNum(userId, illustType, page);
-                HttpWebRequest req = setupRequest(url);
+                HttpWebRequest req = SetupRequest(url);
 
                 HttpWebResponse res = (HttpWebResponse)req.GetResponse();
 
@@ -219,7 +223,7 @@ namespace PixieBrowser
             try
             {
                 string pageUrl = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + imgId;
-                HttpWebRequest request = setupRequest(pageUrl);
+                HttpWebRequest request = SetupRequest(pageUrl);
                 request.Referer = pageUrl;
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 

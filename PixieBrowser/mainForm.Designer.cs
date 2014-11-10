@@ -200,6 +200,7 @@
             "Ugoira"});
             this.illustFilter.Location = new System.Drawing.Point(476, 31);
             this.illustFilter.Name = "illustFilter";
+            this.illustFilter.Text = "Illustration";
             this.illustFilter.Size = new System.Drawing.Size(121, 20);
             this.illustFilter.TabIndex = 0;
             this.illustFilter.TextChanged += new System.EventHandler(this.illustFilter_TextChanged);
