@@ -54,7 +54,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.urlTextBox.Location = new System.Drawing.Point(77, 6);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(440, 21);
+            this.urlTextBox.Size = new System.Drawing.Size(477, 21);
             this.urlTextBox.TabIndex = 0;
             this.urlTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.urlTextBox_KeyDown);
             // 
@@ -70,7 +70,7 @@
             // btn_url
             // 
             this.btn_url.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_url.Location = new System.Drawing.Point(523, 4);
+            this.btn_url.Location = new System.Drawing.Point(560, 4);
             this.btn_url.Name = "btn_url";
             this.btn_url.Size = new System.Drawing.Size(75, 23);
             this.btn_url.TabIndex = 2;
@@ -90,7 +90,7 @@
             // btn_dl_all
             // 
             this.btn_dl_all.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_dl_all.Location = new System.Drawing.Point(504, 558);
+            this.btn_dl_all.Location = new System.Drawing.Point(541, 558);
             this.btn_dl_all.Name = "btn_dl_all";
             this.btn_dl_all.Size = new System.Drawing.Size(93, 23);
             this.btn_dl_all.TabIndex = 5;
@@ -101,7 +101,7 @@
             // btn_dl_selected
             // 
             this.btn_dl_selected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_dl_selected.Location = new System.Drawing.Point(375, 558);
+            this.btn_dl_selected.Location = new System.Drawing.Point(412, 558);
             this.btn_dl_selected.Name = "btn_dl_selected";
             this.btn_dl_selected.Size = new System.Drawing.Size(123, 23);
             this.btn_dl_selected.TabIndex = 6;
@@ -120,7 +120,7 @@
             this.imageTabControl.Location = new System.Drawing.Point(14, 49);
             this.imageTabControl.Name = "imageTabControl";
             this.imageTabControl.SelectedIndex = 0;
-            this.imageTabControl.Size = new System.Drawing.Size(584, 488);
+            this.imageTabControl.Size = new System.Drawing.Size(621, 488);
             this.imageTabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.imageTabControl.TabIndex = 7;
             // 
@@ -130,7 +130,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(576, 462);
+            this.tabPage1.Size = new System.Drawing.Size(613, 462);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Square Image";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -141,7 +141,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(576, 462);
+            this.tabPage2.Size = new System.Drawing.Size(613, 462);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Wide Image";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -152,7 +152,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(576, 462);
+            this.tabPage3.Size = new System.Drawing.Size(613, 462);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Vertical Image";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -198,9 +198,8 @@
             "Illustration",
             "Manga",
             "Ugoira"});
-            this.illustFilter.Location = new System.Drawing.Point(476, 31);
+            this.illustFilter.Location = new System.Drawing.Point(513, 31);
             this.illustFilter.Name = "illustFilter";
-            this.illustFilter.Text = "Illustration";
             this.illustFilter.Size = new System.Drawing.Size(121, 20);
             this.illustFilter.TabIndex = 0;
             this.illustFilter.TextChanged += new System.EventHandler(this.illustFilter_TextChanged);
@@ -209,7 +208,7 @@
             // 
             this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(263, 543);
+            this.pictureBox1.Location = new System.Drawing.Point(281, 543);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(60, 50);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -220,7 +219,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(610, 625);
+            this.ClientSize = new System.Drawing.Size(647, 625);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.illustFilter);
             this.Controls.Add(this.btn_open_directory);
@@ -234,7 +233,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.urlTextBox);
             this.KeyPreview = true;
-            this.MinimumSize = new System.Drawing.Size(626, 663);
+            this.MinimumSize = new System.Drawing.Size(663, 663);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PixieBrowser";

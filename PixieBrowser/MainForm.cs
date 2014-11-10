@@ -26,11 +26,11 @@ namespace PixieBrowser
 
         static ImageList squareImages;
         static ImageList horizontalImages;
-        static ImageList verticalImages;
-        public static List<string> squareImageTag;//format of tag : imageId(00000)/isGroup(_0/_1)/imageType(_H, _V, _S)
-        public static List<string> horizontalImageTag;
-        public static List<string> verticalImageTag;
-        public static List<string> selectedImageList;
+        static ImageList verticalImages;     
+        public static List<ImageInfo> squareImageInfos;
+        public static List<ImageInfo> horizontalImageInfos;
+        public static List<ImageInfo> verticalImageInfos;
+        public static List<ImageInfo> selectedImageInfos;
         object locker = new object();
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
@@ -71,11 +71,11 @@ namespace PixieBrowser
             tabPage2.Controls.Add(horizontalImageView);
             tabPage3.Controls.Add(verticalImageView);
 
-            squareImageTag = new List<string>();
-            horizontalImageTag = new List<string>();
-            verticalImageTag = new List<string>();
 
-            selectedImageList = new List<string>();
+            squareImageInfos = new List<ImageInfo>();
+            horizontalImageInfos = new List<ImageInfo>();
+            verticalImageInfos = new List<ImageInfo>();
+            selectedImageInfos = new List<ImageInfo>();
 
             htmlHelper = new HtmlHelper();
             imageHelper = new ImageHelper();
@@ -95,27 +95,26 @@ namespace PixieBrowser
             switch (imageTabControl.SelectedIndex)
             {
                 case 0:
-                    previewImage(squareImageView, squareImageTag, squareImages);
+                    previewImage(squareImageView, squareImageInfos, squareImages);
                     break;
                 case 1:
-                    previewImage(horizontalImageView, horizontalImageTag, horizontalImages);
+                    previewImage(horizontalImageView, horizontalImageInfos, horizontalImages);
                     break;
                 case 2:
-                    previewImage(verticalImageView, verticalImageTag, verticalImages);
+                    previewImage(verticalImageView, verticalImageInfos, verticalImages);
                     break;
             }
             Cursor.Current = Cursors.Default;
 
         }
-        private void previewImage(ListView currentView, List<string> imageTag, ImageList imageList)
+        private void previewImage(ListView currentView, List<ImageInfo> imageInfos, ImageList imageList)
         {
             foreach (ListViewItem item in currentView.SelectedItems)
             {
                 int imgIndex = item.ImageIndex;
                 if (imgIndex >= 0 && imgIndex < imageList.Images.Count)
                 {
-                    string[] parsedTag = imageTag[imgIndex].Split('_');
-                    ImagePreview previewForm = new ImagePreview(imageTag[imgIndex]);
+                    ImagePreview previewForm = new ImagePreview(imageInfos[imgIndex]);//format of tag : imageId(00000)/isGroup(_0/_1)/imageType(_H, _V, _S)
                     previewForm.Show();
                 }
             }
@@ -131,10 +130,10 @@ namespace PixieBrowser
             squareImages.Dispose();
             verticalImages.Dispose();
             horizontalImages.Dispose();
-            squareImageTag.Clear();
-            horizontalImageTag.Clear();
-            verticalImageTag.Clear();
-            selectedImageList.Clear();
+            squareImageInfos.Clear();
+            horizontalImageInfos.Clear();
+            verticalImageInfos.Clear();
+            selectedImageInfos.Clear();
         }
 
         private void disableUI()
@@ -213,10 +212,11 @@ namespace PixieBrowser
             if (illustFilter.SelectedIndex != 0)
             {
                 illustFilter.SelectedIndex = 0;
+                enableUI();
                 return;
             } 
             loadImageByFilter(IllustType.Illust);
-            
+            this.Text = "PixieBrowser - " + id;
             enableUI();
         }
         private ListView setupViewProperty(string viewName)
@@ -242,14 +242,14 @@ namespace PixieBrowser
                     foreach (ListViewItem image in squareImageView.Items)
                     {
                         int imgIndex = image.ImageIndex;
-                        selectedImageList.Add(squareImageTag[imgIndex]);
+                        selectedImageInfos.Add(squareImageInfos[imgIndex]);
                     }
                     break;
                 case 1:
                     foreach (ListViewItem image in horizontalImageView.Items)
                     {
                         int imgIndex = image.ImageIndex;
-                        selectedImageList.Add(horizontalImageTag[imgIndex]);
+                        selectedImageInfos.Add(horizontalImageInfos[imgIndex]);
                     }
 
                     break;
@@ -257,7 +257,7 @@ namespace PixieBrowser
                     foreach (ListViewItem image in verticalImageView.Items)
                     {
                         int imgIndex = image.ImageIndex;
-                        selectedImageList.Add(verticalImageTag[imgIndex]);
+                        selectedImageInfos.Add(verticalImageInfos[imgIndex]);
                     }
                     break;
             }
@@ -272,14 +272,14 @@ namespace PixieBrowser
                     foreach (ListViewItem image in squareImageView.SelectedItems)
                     {
                         int imgIndex = image.ImageIndex;
-                        selectedImageList.Add(squareImageTag[imgIndex]);
+                        selectedImageInfos.Add(squareImageInfos[imgIndex]);
                     }
                     break;
                 case 1:
                     foreach (ListViewItem image in horizontalImageView.SelectedItems)
                     {
                         int imgIndex = image.ImageIndex;
-                        selectedImageList.Add(horizontalImageTag[imgIndex]);
+                        selectedImageInfos.Add(horizontalImageInfos[imgIndex]);
                     }
                     
                     break;
@@ -287,7 +287,7 @@ namespace PixieBrowser
                     foreach (ListViewItem image in verticalImageView.SelectedItems)
                     {
                         int imgIndex = image.ImageIndex;
-                        selectedImageList.Add(verticalImageTag[imgIndex]);
+                        selectedImageInfos.Add(verticalImageInfos[imgIndex]);
                     }
                     break;
             }
@@ -298,32 +298,32 @@ namespace PixieBrowser
         {
             Cursor.Current = Cursors.WaitCursor;
             disableUI();
-            Parallel.ForEach(selectedImageList, image => { 
-                string[] parsedTag = image.Split('_');
-                string imageUrl = htmlHelper.BigImageUrl(parsedTag[0]);//imageid is parsedTag[0]
-                if (parsedTag[1] == "M")//multiple image
+            Parallel.ForEach(selectedImageInfos, image => { 
+                string imageUrl = htmlHelper.BigImageUrl(image.ImageId);//imageid is parsedTag[0]
+                if (image.IsMultiple)//multiple image
                 {
-                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(parsedTag[0]);
-                    List<Image> imageList = ImageHelper.LoadOriginalImage(parsedTag[0], document);
+                    HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(image.ImageId);
+                    Tuple<List<Image>, List<string>> imageAndName = ImageHelper.LoadOriginalImage(image.ImageId, document);
+                    List<Image> imageList = imageAndName.Item1;
+                    List<string> imageNames = imageAndName.Item2;
+                    string directory = fileDirectory + "\\" + image.ImageName + "\\";
+                    Directory.CreateDirectory(directory); 
                     for (int index = 0; index < imageList.Count; index++)
                     {
                         byte[] imageNode = imageHelper.byteImage(imageList[index]);
-                        string directory = fileDirectory + "\\" + parsedTag[0] + "\\";
-                        Directory.CreateDirectory(directory);
-                        File.WriteAllBytes(fileDirectory+"\\"+parsedTag[0]+"\\"+index.ToString()+ImageHelper.ImageType(imageList[index]), imageNode);
+                        File.WriteAllBytes(directory + "\\" + imageNames[index], imageNode);
                     }
                 }
                 else
                 {
-                    string imageType="";
-                    byte[] byteImage = imageHelper.byteImage(imageUrl, parsedTag[0],ref imageType);
-                    File.WriteAllBytes(fileDirectory + "\\" + parsedTag[0] + imageType, byteImage);
+                    byte[] byteImage = imageHelper.byteImage(imageUrl, image.ImageId);
+                    File.WriteAllBytes(fileDirectory + "\\" + image.ImageName + imageUrl.Substring(imageUrl.Length-4), byteImage);
                 }
 
             });
             enableUI();
             Cursor.Current = Cursors.Default;
-            selectedImageList.Clear();
+            selectedImageInfos.Clear();
         }
         public static ImageList getSquareImageList() { return squareImages; }
         public static ImageList getHorizontalImageList() { return horizontalImages; }

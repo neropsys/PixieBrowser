@@ -14,27 +14,29 @@ namespace PixieBrowser
     public partial class ImagePreview : Form
     {
         List<Image> imageBundle;
+        List<string> imageName;
         int currentPage = 0;
-        public ImagePreview(string imgTag)
+        public ImagePreview(ImageInfo info)
         {
             InitializeComponent();
             HtmlHelper htmlHelper = new HtmlHelper();
             ImageHelper imageHelper = new ImageHelper();
-            string[] tagBundle = imgTag.Split('_');
-           
-            if (tagBundle[1] == "M") //if there's multiple image on the page
+            if (info.IsMultiple) //if there's multiple image on the page
             {
-                
-                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(tagBundle[0]);
-                imageBundle = ImageHelper.LoadOriginalImage(tagBundle[0], document);
+
+                HtmlAgilityPack.HtmlDocument document = htmlHelper.htmlOnPage(info.ImageId);//format of tag : imageId(00000)/isGroup(_0/_1)/imageType(_H, _V, _S)
+                var imageData = ImageHelper.LoadOriginalImage(info.ImageId, document);
+                imageBundle = imageData.Item1;
+                imageName = imageData.Item2;
                 pictureBox1.Image = imageBundle[currentPage];
-                this.Text = "ImagePreview - " + currentPage + "/" + (imageBundle.Count - 1);
+                this.Text = info.ImageName + " - " + currentPage + "/" + (imageBundle.Count - 1);
             }
             else
             {
-                string bigImgUrl = htmlHelper.BigImageUrl(tagBundle[0]);
-                Image originalImage = imageHelper.loadOriginalImage(bigImgUrl, tagBundle[0]);
+                string bigImgUrl = htmlHelper.BigImageUrl(info.ImageId);
+                Image originalImage = imageHelper.loadOriginalImage(bigImgUrl, info.ImageId);
                 pictureBox1.Image = originalImage;
+                this.Text = info.ImageName;
             }
 
         }
@@ -51,7 +53,7 @@ namespace PixieBrowser
                 currentPage=0;
             }            
             pictureBox1.Image = imageBundle[currentPage];
-            this.Text = "ImagePreview - " + currentPage + "/" + (imageBundle.Count-1);
+            this.Text = imageName[currentPage]+" - " + currentPage + "/" + (imageBundle.Count-1);
             currentPage++;
         }
         

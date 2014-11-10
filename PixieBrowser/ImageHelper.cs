@@ -56,7 +56,9 @@ namespace PixieBrowser
                 string thumbnailUrl = Regex.Match(link.OuterHtml.ToString(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
                 try
                 {
-
+                    char imageType;
+                    bool isMultiple;
+                    string imageName = link.InnerText;
                     Image loadedImage = loadThumbnailImage(thumbnailUrl, userId);
 
                     string[] delimiters = new string[] { "/", "_" };
@@ -70,35 +72,30 @@ namespace PixieBrowser
                         //irregular type of url
 
                     }
-
-                    string tag = imageId;
-                    Debug.WriteLine("image tag {0}", tag);
                     if (link.InnerHtml.Contains("multiple") || illustType == MainForm.IllustType.Manga)
                     {
-                        tag += "_M";//multiple image on the page
+                        isMultiple = true;//multiple image on the page
                     }
-                    else tag += "_S";//single image
+                    else isMultiple = false;//single image
                     lock (locker)
                     {
                         if ((float)loadedImage.Width / loadedImage.Height > 1.2f)
                         {
                             MainForm.getHorizontalImageList().Images.Add(loadedImage);
-                            tag += "_H";
-                            MainForm.horizontalImageTag.Add(tag);
+                            imageType = 'h';
+                            MainForm.horizontalImageInfos.Add(new ImageInfo(imageId, imageName, imageType, isMultiple));
                         }
                         else if ((float)loadedImage.Height / loadedImage.Width > 1.2f)
                         {
                             MainForm.getVerticalImageList().Images.Add(loadedImage);
-                            tag += "_V";
-                            if (MainForm.verticalImageTag.Count == 0)
-                                Debug.WriteLine("zero index image info {0}", tag);
-                            MainForm.verticalImageTag.Add(tag);
+                            imageType = 'v';
+                            MainForm.verticalImageInfos.Add(new ImageInfo(imageId, imageName, imageType, isMultiple));
                         }
                         else
                         {
                             MainForm.getSquareImageList().Images.Add(loadedImage);
-                            tag += "_S";
-                            MainForm.squareImageTag.Add(tag);
+                            imageType = 's';
+                            MainForm.squareImageInfos.Add(new ImageInfo(imageId, imageName, imageType, isMultiple));
                         }
                         if (MainForm.getLoadingForm().InvokeRequired)
                             updateProgress = new CallbackDelegate(() => MainForm.getLoadingForm().processValue());
@@ -133,10 +130,9 @@ namespace PixieBrowser
             }
             return null;
         }
-        public byte[] byteImage(string imgUrl, string imgId, ref string imageType)
+        public byte[] byteImage(string imgUrl, string imgId)
         {
             Image img = loadOriginalImage(imgUrl, imgId);
-            imageType = ImageType(img);
             ImageConverter converter = new ImageConverter();
             byte[] image = (byte[])converter.ConvertTo(img, typeof(byte[]));
             return image;
@@ -146,21 +142,10 @@ namespace PixieBrowser
             ImageConverter converter = new ImageConverter();
             return (byte[])converter.ConvertTo(image, typeof(byte[]));
         }
-        public static string ImageType(Image image)
-        {
-            if (ImageFormat.Jpeg.Equals(image.RawFormat))
-                return ".jpg";
-            else if (ImageFormat.Gif.Equals(image.RawFormat))
-                return ".gif";
-            else if (ImageFormat.Png.Equals(image.RawFormat))
-                return ".png";
-            else if (ImageFormat.Bmp.Equals(image.RawFormat))
-                return ".bmp";
-            else return "FileTypeUnknown";
-        }
-        public static List<Image> LoadOriginalImage(string imgId, HtmlAgilityPack.HtmlDocument document)
+        public static Tuple<List<Image>, List<string>> LoadOriginalImage(string imgId, HtmlAgilityPack.HtmlDocument document)
         {
             if (document.DocumentNode.SelectNodes("//section[@class='manga']//a") == null) return  null;
+            List<string> imageName = new List<string>();
             List<Image> imageList = new List<Image>();
             IEnumerable<HtmlNode> result = from node in document.DocumentNode.SelectNodes("//section[@class='manga']//a").AsParallel().AsOrdered()
                                            select node;
@@ -170,18 +155,23 @@ namespace PixieBrowser
                 HttpWebRequest request = HtmlHelper.SetupRequest(imagePage);
                 request.Referer = imagePage;
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
+                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))//I think it's not done in parallel
                 {
                     string originalImage = Regex.Match(reader.ReadToEnd(), "<img.+?src=\"(.+?)\".+?/?>", RegexOptions.IgnoreCase).Groups[1].Value;
                     request = HtmlHelper.SetupRequest(originalImage);
                     request.Referer = imagePage;
                     response = (HttpWebResponse)request.GetResponse();
+                    string[] delimiters = new string[] { "/"};
+                    string[] parsedUrl = originalImage.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                    imageName.Add(parsedUrl[parsedUrl.Length-1]);
+
                     imageList.Add(Image.FromStream(response.GetResponseStream()));
 
                 }
             }
-            return imageList;
+            return Tuple.Create(imageList, imageName);
         }
+
         Image loadThumbnailImage(string imageUrl, string userId)
         {
             try
