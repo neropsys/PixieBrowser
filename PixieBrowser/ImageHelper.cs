@@ -25,7 +25,6 @@ namespace PixieBrowser
         private object locker = new object();
         private delegate void CallbackDelegate();
         CallbackDelegate updateProgress = new CallbackDelegate(()=>MainForm.getLoadingForm().processValue());
-
         public void loadImageList(ImageList imageList, ListView listview)
         {
             for (int counter = 0; counter < imageList.Images.Count; counter++)
@@ -42,6 +41,11 @@ namespace PixieBrowser
                 listview.BeginInvoke(new MethodInvoker(() => listview.LargeImageList = imageList));
             else
                 listview.LargeImageList = imageList;
+        }
+        public static Image LoadProfileImage(string imgUrl)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(imgUrl);
+            return Image.FromStream(request.GetResponse().GetResponseStream());
         }
         public void loadThumbnailsPerPage(HtmlAgilityPack.HtmlDocument document, string userId, MainForm.IllustType illustType)
         {

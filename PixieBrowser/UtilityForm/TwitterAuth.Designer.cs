@@ -68,6 +68,8 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
+            this.MaximumSize = new System.Drawing.Size(326, 85);
+            this.MinimumSize = new System.Drawing.Size(326, 85);
             this.Name = "TwitterAuth";
             this.Text = "TwitterAuth";
             this.ResumeLayout(false);

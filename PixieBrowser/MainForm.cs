@@ -25,11 +25,13 @@ namespace PixieBrowser
 
         static ImageList squareImages;
         static ImageList horizontalImages;
-        static ImageList verticalImages;     
+        static ImageList verticalImages;    
+
         public static List<ImageInfo> squareImageInfos;
         public static List<ImageInfo> horizontalImageInfos;
         public static List<ImageInfo> verticalImageInfos;
         public static List<ImageInfo> selectedImageInfos;
+
         object locker = new object();
         private delegate void ListViewDelegate(ImageList list, ListView listview);
 
@@ -37,14 +39,21 @@ namespace PixieBrowser
         ProcessValue updateProgress = new ProcessValue(() => loadingForm.processValue());
 
         Image twitterOnlineLogo;
-
+        public static Image twitterProfileImage;
+        public static TwitterService twitterService;
+        string twitterProfileImageUrl;
+   
         HtmlHelper htmlHelper;
         ImageHelper imageHelper;
         static Loading loadingForm;
         static string fileDirectory;
         public static string twitterVerfier;
+        private static string userName;
         string profileId;
-
+        public static string UserName
+        {
+            get { return userName; }
+        }
         public MainForm()
         {
             InitializeComponent();
@@ -205,8 +214,8 @@ namespace PixieBrowser
             btn_url.Enabled = false;
             clearAll();
             profileId = urlTextBox.Text.ToString();
-            string id = htmlHelper.searchById(profileId);
-            if (id == null|| profileId=="")
+            userName = htmlHelper.searchById(profileId);
+            if (userName == null|| profileId=="")
             {
                 MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
                 btn_url.Enabled = true;
@@ -219,7 +228,7 @@ namespace PixieBrowser
                 return;
             } 
             loadImageByFilter(IllustType.Illust);
-            this.Text = "PixieBrowser - " + id;
+            this.Text = "PixieBrowser - " + userName;
             enableUI();
         }
         private ListView setupViewProperty(string viewName)
@@ -375,9 +384,9 @@ namespace PixieBrowser
 
         private void twitterButton_Click(object sender, EventArgs e)
         {
-            TwitterService service = new TwitterService("NQmqCqlxgVrFxiCSyvzj0OfOa", "c4cDb2Fw1T3ZLVmuhsE4miNQRtlwHn0TYrsPw0Mj43lDVIXz3D");
-            OAuthRequestToken requestToken = service.GetRequestToken();
-            Uri uri = service.GetAuthorizationUri(requestToken);
+            twitterService = new TwitterService("NQmqCqlxgVrFxiCSyvzj0OfOa", "c4cDb2Fw1T3ZLVmuhsE4miNQRtlwHn0TYrsPw0Mj43lDVIXz3D");
+            OAuthRequestToken requestToken = twitterService.GetRequestToken();
+            Uri uri = twitterService.GetAuthorizationUri(requestToken);
             Process.Start(uri.ToString());
             using (TwitterAuth form = new TwitterAuth())
             {
@@ -386,19 +395,22 @@ namespace PixieBrowser
                     twitterVerfier = form.VerifierCode;
                 }
             }
-            OAuthAccessToken access = service.GetAccessToken(requestToken, twitterVerfier);
+            OAuthAccessToken access = twitterService.GetAccessToken(requestToken, twitterVerfier);
 
-            service.AuthenticateWith(access.Token, access.TokenSecret);
+            twitterService.AuthenticateWith(access.Token, access.TokenSecret);
+            TwitterUser user = twitterService.GetUserProfile(new GetUserProfileOptions());
+            
 
-            SendTweetOptions option = new SendTweetOptions();
-            //TwitterStatus testTweet = service.SendTweet(new SendTweetOptions { Status="Test from .net PixieBrowser"});
-            if (service.Response.Response.Contains("89"))
+            if (twitterService.Response.Response.Contains("Invalid"))//debug needed
             {
                 MessageBox.Show("Wrong authentication code");
             }
             else
             {
                 twitterButton.Image = twitterOnlineLogo;
+                twitterProfileImageUrl = user.ProfileImageUrlHttps;
+
+                twitterProfileImage = ImageHelper.LoadProfileImage(twitterProfileImageUrl);
             }
 
         }

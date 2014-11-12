@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.urlTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btn_url = new System.Windows.Forms.Button();
@@ -207,7 +206,7 @@
             // twitterButton
             // 
             this.twitterButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.twitterButton.Image = PixieBrowser.Properties.Resources.Twitter_logo_deactivated;
+            this.twitterButton.Image = global::PixieBrowser.Properties.Resources.Twitter_logo_deactivated;
             this.twitterButton.Location = new System.Drawing.Point(281, 543);
             this.twitterButton.Name = "twitterButton";
             this.twitterButton.Size = new System.Drawing.Size(60, 50);
