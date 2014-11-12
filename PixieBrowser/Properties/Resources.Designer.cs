@@ -59,5 +59,25 @@ namespace PixieBrowser.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Twitter_logo_activated {
+            get {
+                object obj = ResourceManager.GetObject("Twitter_logo_activated", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Twitter_logo_deactivated {
+            get {
+                object obj = ResourceManager.GetObject("Twitter_logo_deactivated", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

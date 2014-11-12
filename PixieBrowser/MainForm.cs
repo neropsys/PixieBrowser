@@ -81,7 +81,7 @@ namespace PixieBrowser
             htmlHelper = new HtmlHelper();
             imageHelper = new ImageHelper();
 
-            twitterOnlineLogo = Image.FromFile("res/Twitter_logo_activated.png");
+            twitterOnlineLogo = PixieBrowser.Properties.Resources.Twitter_logo_activated;
 
             disableUI();
             btn_url.Enabled = true;
