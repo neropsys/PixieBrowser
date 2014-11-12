@@ -12,7 +12,6 @@ namespace PixieBrowser
         private string imageId;
         private char imageRatio;
         private bool isMultiple;
-        private string imageType;
         public ImageInfo(string imageId, string imageName, char imageRatio, bool isMultiple)
         {
             this.imageName = imageName;
@@ -35,10 +34,6 @@ namespace PixieBrowser
         public bool IsMultiple
         {
             get { return isMultiple; }
-        }
-        public string ImageType
-        {
-            get { return imageType; }
         }
     }
 }

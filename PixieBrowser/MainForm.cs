@@ -1,13 +1,12 @@
-﻿using HtmlAgilityPack;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TweetSharp;
+using System.Threading;
 namespace PixieBrowser
 {
     public partial class MainForm : Form
@@ -37,10 +36,13 @@ namespace PixieBrowser
         private delegate void ProcessValue();
         ProcessValue updateProgress = new ProcessValue(() => loadingForm.processValue());
 
+        Image twitterOnlineLogo;
+
         HtmlHelper htmlHelper;
         ImageHelper imageHelper;
         static Loading loadingForm;
         static string fileDirectory;
+        public static string twitterVerfier;
         string profileId;
 
         public MainForm()
@@ -71,7 +73,6 @@ namespace PixieBrowser
             tabPage2.Controls.Add(horizontalImageView);
             tabPage3.Controls.Add(verticalImageView);
 
-
             squareImageInfos = new List<ImageInfo>();
             horizontalImageInfos = new List<ImageInfo>();
             verticalImageInfos = new List<ImageInfo>();
@@ -79,6 +80,8 @@ namespace PixieBrowser
 
             htmlHelper = new HtmlHelper();
             imageHelper = new ImageHelper();
+
+            twitterOnlineLogo = Image.FromFile("res/Twitter_logo_activated.png");
 
             disableUI();
             btn_url.Enabled = true;
@@ -339,7 +342,7 @@ namespace PixieBrowser
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void imgDir_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dlg = new FolderBrowserDialog();
             dlg.ShowDialog();
@@ -368,6 +371,36 @@ namespace PixieBrowser
                     break;
 
             }
+        }
+
+        private void twitterButton_Click(object sender, EventArgs e)
+        {
+            TwitterService service = new TwitterService("NQmqCqlxgVrFxiCSyvzj0OfOa", "c4cDb2Fw1T3ZLVmuhsE4miNQRtlwHn0TYrsPw0Mj43lDVIXz3D");
+            OAuthRequestToken requestToken = service.GetRequestToken();
+            Uri uri = service.GetAuthorizationUri(requestToken);
+            Process.Start(uri.ToString());
+            using (TwitterAuth form = new TwitterAuth())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    twitterVerfier = form.VerifierCode;
+                }
+            }
+            OAuthAccessToken access = service.GetAccessToken(requestToken, twitterVerfier);
+
+            service.AuthenticateWith(access.Token, access.TokenSecret);
+
+            SendTweetOptions option = new SendTweetOptions();
+            //TwitterStatus testTweet = service.SendTweet(new SendTweetOptions { Status="Test from .net PixieBrowser"});
+            if (service.Response.Response.Contains("89"))
+            {
+                MessageBox.Show("Wrong authentication code");
+            }
+            else
+            {
+                twitterButton.Image = twitterOnlineLogo;
+            }
+
         }
     }
 }

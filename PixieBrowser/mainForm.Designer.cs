@@ -43,9 +43,9 @@
             this.fileDirectoryLabel = new System.Windows.Forms.Label();
             this.btn_open_directory = new System.Windows.Forms.Button();
             this.illustFilter = new System.Windows.Forms.ComboBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.twitterButton = new System.Windows.Forms.PictureBox();
             this.imageTabControl.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.twitterButton)).BeginInit();
             this.SuspendLayout();
             // 
             // urlTextBox
@@ -166,7 +166,7 @@
             this.btn_img_directory.TabIndex = 8;
             this.btn_img_directory.Text = ".img Directory";
             this.btn_img_directory.UseVisualStyleBackColor = true;
-            this.btn_img_directory.Click += new System.EventHandler(this.button1_Click);
+            this.btn_img_directory.Click += new System.EventHandler(this.imgDir_Click);
             // 
             // fileDirectoryLabel
             // 
@@ -204,23 +204,24 @@
             this.illustFilter.TabIndex = 0;
             this.illustFilter.TextChanged += new System.EventHandler(this.illustFilter_TextChanged);
             // 
-            // pictureBox1
+            // twitterButton
             // 
-            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(281, 543);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(60, 50);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 11;
-            this.pictureBox1.TabStop = false;
+            this.twitterButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.twitterButton.Image = ((System.Drawing.Image)(resources.GetObject("twitterButton.Image")));
+            this.twitterButton.Location = new System.Drawing.Point(281, 543);
+            this.twitterButton.Name = "twitterButton";
+            this.twitterButton.Size = new System.Drawing.Size(60, 50);
+            this.twitterButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.twitterButton.TabIndex = 11;
+            this.twitterButton.TabStop = false;
+            this.twitterButton.Click += new System.EventHandler(this.twitterButton_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(647, 625);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.twitterButton);
             this.Controls.Add(this.illustFilter);
             this.Controls.Add(this.btn_open_directory);
             this.Controls.Add(this.fileDirectoryLabel);
@@ -238,7 +239,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PixieBrowser";
             this.imageTabControl.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.twitterButton)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -260,7 +261,7 @@
         private System.Windows.Forms.Label fileDirectoryLabel;
         private System.Windows.Forms.Button btn_open_directory;
         private System.Windows.Forms.ComboBox illustFilter;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox twitterButton;
     }
 }
 
