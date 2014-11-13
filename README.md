@@ -7,7 +7,7 @@ Application for downloading illustrations from Pixiv user profile.
 
 *This application is still in development*
 
-[Download] (https://github.com/neropsys/PixieBrowser/releases/download/v1.5/PixieBrowser.zip)
+[Download latest version] (https://github.com/neropsys/PixieBrowser/releases/download/v2.0/PixieBrowser.zip)
 
 Features
 ================
