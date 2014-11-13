@@ -19,11 +19,12 @@ Download selected images as well as downloading all of them.
 
 Preview the list of illustrations on Manga tab in single Preview form.
 
+Sharing image URL on twitter.
+
 Next Update
 ================
 Viewing user's bookmarked images and preview all illustrations of the selected illustrator in bookmark tab.
 
-Sharing image URL on twitter.
 
 
 Planned Features
@@ -32,7 +33,6 @@ Adding UI on Image Preview form and additional form to view multiple image at on
 
 Save gif images(Ugoira)
 
-Browsing images without logging in. Some restrictions could be applied.
 
 
 Requirements
