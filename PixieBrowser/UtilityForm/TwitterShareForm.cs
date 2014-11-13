@@ -30,6 +30,7 @@ namespace PixieBrowser.UtilityForm
         private void shareButton_Click(object sender, EventArgs e)
         {
             MainForm.twitterService.SendTweet(new SendTweetOptions {Status = tweetBox.Text });
+
             Close();
         }
 
