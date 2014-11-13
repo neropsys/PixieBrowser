@@ -46,3 +46,12 @@ UI Preview
 ==============
 
 ![alt tag](https://raw.githubusercontent.com/neropsys/PixieBrowser/master/K-86.png)
+
+Clicking on Twitter logo runs authentication page on twitter. copy & paste the number from web browset to application.
+
+if it authenticates successfully, Twitter logo turns blue. Then user can share illustration through twitter on preview form.
+
+double clicking the image in the form runs image preview form that displays the illustration in full size. 
+
+To share the image on twitter, right click on preview form and share.  
+
