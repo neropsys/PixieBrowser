@@ -29,10 +29,11 @@ Viewing user's bookmarked images and preview all illustrations of the selected i
 
 Planned Features
 ================
-Adding UI on Image Preview form and additional form to view multiple image at once on Manga mode.
+Adding UI on Image Preview form and additional form to view multiple image at once on Manga mode.(pending)
 
 Save gif images(Ugoira)
 
+Log in with Google or Facebook(pending)
 
 
 Requirements
