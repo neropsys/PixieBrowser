@@ -1,7 +1,7 @@
 PixieBrowser
 ===============
 
-version 1.5
+version 2.0
 
 Application for downloading illustrations from Pixiv user profile.
 
