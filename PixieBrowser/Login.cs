@@ -42,9 +42,9 @@ namespace PixieBrowser
                 return;
             }
             MessageBox.Show("login successful!");
-            Program.isLoggedIn = true;
             Program.id = this.id;
             Program.password = this.password;
+            this.DialogResult = DialogResult.OK;
             Close();
         }
        private void Login_KeyDown(object sender, KeyEventArgs e)

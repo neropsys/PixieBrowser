@@ -73,7 +73,10 @@ namespace PixieBrowser
             using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8")))
             {
                 string result = reader.ReadToEnd();
-                if (result.Contains("li class=\"image-item\"")) return true;
+                //HtmlAgilityPack.HtmlDocument mainHtml = new HtmlAgilityPack.HtmlDocument();
+                //mainHtml.LoadHtml(result);
+                //if (mainHtml.DocumentNode.Element()) return true;
+                if (result.Contains("_image-items")) return true;
                 else return false;
             }
         }
@@ -88,16 +91,32 @@ namespace PixieBrowser
         {
             string url = "http://www.pixiv.net/member_illust.php?type=illust&id=" + profileId;
             HttpWebRequest request = SetupRequest(url);
-            using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream(), Encoding.GetEncoding("UTF-8")))
+            try
             {
-                string html = reader.ReadToEnd();
-                if (html.Contains("errorArea") || html.Contains("one_column_body")) return null;
-                else
+                using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream(), Encoding.GetEncoding("UTF-8")))
                 {
-                    HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-                    document.LoadHtml(html);
-                    return document.DocumentNode.SelectNodes("//a[@class='user-link']//h1")[0].InnerText;;
+                    string html = reader.ReadToEnd();
+                    if (html.Contains("errorArea") || html.Contains("one_column_body")) return null;
+                    else
+                    {
+                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                        document.LoadHtml(html);
+                        return document.DocumentNode.SelectNodes("//a[@class='user-link']//h1")[0].InnerText; ;
+                    }
                 }
+            }
+            catch (System.Net.WebException e)
+            {
+                switch (e.Status)
+                {
+                    case WebExceptionStatus.ProtocolError:
+                        MessageBox.Show("Protocol Error. Check the id number");
+                        break;
+                    default:
+                        MessageBox.Show("Unexpected Error. Report this message to Github issue tracker" + e.Status.ToString());
+                        break;
+                }
+                return null;
             }
         }
         private string illustFilter(string id, MainForm.IllustType illustType) //builds string by illust, manga, ugoira, and return it
@@ -120,6 +139,9 @@ namespace PixieBrowser
                     break;
                 case MainForm.IllustType.Novel:
                     urlTemplate = "http://www.pixiv.net/novel/member.php?id=" + id;
+                    break;
+                case MainForm.IllustType.BookMark:
+                    urlTemplate = "http://www.pixiv.net/bookmark.php?id=" + id + "&rest=show";
                     break;
                 default: 
                 return "";
@@ -155,8 +177,8 @@ namespace PixieBrowser
             {
                 
                 temp = "p=" + (pages + 1).ToString();//"href=\""+ "?id=" + id + "&amp;type=illust"+ "&amp;p=" + "2"+"\"";
-                if (!result.Contains("pager-container") ||
-                    !result.Contains("_thumbnail") ||
+                // if code for bookmark(check bookmark html later on)
+                if (
                     !result.Contains("rel=\"next\""))
                 {
                     return pages;
@@ -169,7 +191,12 @@ namespace PixieBrowser
                 if (result.Contains("class=\"next\""))
                 {
                     string nextUrl = illustFilter(id, illustType);
-                    nextUrl += "&type=illust&p=" + pages.ToString();
+                    if (illustType != MainForm.IllustType.BookMark)
+                    {
+                        nextUrl += "&type=illust&p=" + pages.ToString();
+                    }
+                    else
+                        nextUrl += "&p=" + pages.ToString();
                     request = SetupRequest(nextUrl);
                     response = (HttpWebResponse)request.GetResponse();
                     sr = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("UTF-8"));

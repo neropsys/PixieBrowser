@@ -17,6 +17,7 @@ namespace PixieBrowser
             Illust,
             Manga,
             Ugoira,
+            BookMark,
             Novel
         }
         ListView squareImageView;
@@ -57,7 +58,6 @@ namespace PixieBrowser
         public MainForm()
         {
             InitializeComponent();
-            if (!Program.isLoggedIn) Application.Exit();
             squareImages = new ImageList();
             squareImages.ColorDepth = ColorDepth.Depth32Bit;
             squareImages.ImageSize = new Size(150, 150);
@@ -215,12 +215,14 @@ namespace PixieBrowser
             clearAll();
             profileId = urlTextBox.Text.ToString();
             userName = htmlHelper.searchById(profileId);
-            if (userName == null|| profileId=="")
+            if (profileId == "")
             {
-                MessageBox.Show("ID does not exist or internet is down, or pixiv is down");
+                MessageBox.Show("ID does not exist");
                 btn_url.Enabled = true;
                 return;
             }
+            else if (userName == null) return;
+
             if (illustFilter.SelectedIndex != 0)
             {
                 illustFilter.SelectedIndex = 0;
@@ -377,6 +379,9 @@ namespace PixieBrowser
                     break;
                 case 2:
                     loadImageByFilter(IllustType.Ugoira);
+                    break;
+                case 3:
+                    loadImageByFilter(IllustType.BookMark);
                     break;
 
             }

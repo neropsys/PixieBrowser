@@ -11,7 +11,6 @@ namespace PixieBrowser
         /// </summary>
         public static string id;
         public static string password;
-        public static bool isLoggedIn = false;
         public static CookieContainer cookie;
         [STAThread]
         static void Main()
@@ -20,8 +19,8 @@ namespace PixieBrowser
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             cookie = new CookieContainer();
-            Application.Run(new Login());
-            if(isLoggedIn)
+            var loginForm = new Login();
+            if(loginForm.ShowDialog() == DialogResult.OK)
                 Application.Run(new MainForm());
            
         }

@@ -196,7 +196,8 @@
             this.illustFilter.Items.AddRange(new object[] {
             "Illustration",
             "Manga",
-            "Ugoira"});
+            "Ugoira",
+            "Bookmarks"});
             this.illustFilter.Location = new System.Drawing.Point(513, 31);
             this.illustFilter.Name = "illustFilter";
             this.illustFilter.Size = new System.Drawing.Size(121, 20);
